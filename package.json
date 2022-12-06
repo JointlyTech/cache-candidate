@@ -1,0 +1,56 @@
+{
+  "name": "@cadienvan/npm-package-ts-scaffholding",
+  "private": false,
+  "version": "0.0.2",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "ts-types": " tsc --emitDeclarationOnly --outDir dist",
+    "build": "npm run lint && rimraf dist && NODE_ENV=production node esbuild.js && npm run ts-types",
+    "demo-test": "for file in demo/*.js; do node $file; done",
+    "prettier": "prettier --write .",
+    "lint": "eslint . --ext .ts",
+    "prepare": "husky install",
+    "dev": "jest --watch",
+    "test": "jest --no-cache"
+  },
+  "prepublish": "npm run build",
+  "devDependencies": {
+    "@types/jest": "^29.2.0",
+    "@types/node": "^18.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.41.0",
+    "@typescript-eslint/parser": "^5.41.0",
+    "esbuild": "^0.15.12",
+    "eslint": "^8.26.0",
+    "husky": "^8.0.1",
+    "jest": "^29.2.2",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^29.0.3",
+    "typescript": "^4.8.4"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": [
+      "npx prettier --write",
+      "npx eslint --fix"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Cadienvan/npm-package-ts-scaffholding.git"
+  },
+  "license": "MIT",
+  "author": "Michael Di Prisco <cadienvan@gmail.com>"
+}

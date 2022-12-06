@@ -1,0 +1,17 @@
+npm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+coverage
