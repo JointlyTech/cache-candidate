@@ -29,6 +29,6 @@ esbuild
     platform: 'node',
     // ????
     // there's no node14.X option https://esbuild.github.io/api/#target
-    target: ['node14.16']
+    target: ['node18.12.1']
   })
   .catch(() => process.exit(1));
