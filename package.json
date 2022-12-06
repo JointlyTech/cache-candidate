@@ -1,6 +1,6 @@
 {
   "name": "@jointly/cache-candidate",
-  "private": true,
+  "private": false,
   "version": "0.0.1",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -16,7 +16,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "ts-types": "tsc --declaration --emitDeclarationOnly --outDir dist",
+    "ts-types": "tsc --emitDeclarationOnly --outDir dist",
     "build": "npm run lint && rimraf dist && NODE_ENV=production node esbuild.js && npm run ts-types",
     "demo-test": "for file in demo/*.js; do node $file; done",
     "prettier": "prettier --write .",
@@ -33,7 +33,6 @@
     "@typescript-eslint/eslint-plugin": "^5.41.0",
     "@typescript-eslint/parser": "^5.41.0",
     "esbuild": "^0.15.18",
-    "esbuild-wasm": "^0.15.18",
     "eslint": "^8.26.0",
     "husky": "^8.0.1",
     "jest": "^29.2.2",
