@@ -1,3 +1,9 @@
+#### 0.0.3 (2022-12-12)
+
+##### Chores
+
+*  added redis types ([0254b4c5](https://github.com/JointlyTech/cache-candidate/commit/0254b4c5d0cf85a58c71a39a616429d68d46876c))
+
 #### 0.0.2 (2022-12-12)
 
 ##### Chores
