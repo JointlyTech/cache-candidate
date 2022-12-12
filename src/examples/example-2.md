@@ -8,7 +8,7 @@ const client = createClient({
 
 class MockClass {
   @CacheCandidate({
-    cache: makeRedisCache(client),
+    cache: makeRedisCache(client)
   })
   mockFunction(output: string) {
     return new Promise((resolve) => {
