@@ -74,29 +74,6 @@ The value calculated based on candidate conditions which is then compared to the
 
 # ToDo
 
-- [ ] Cache Invalidation: Se sì, come? Ma soprattutto, perché?
-- [ ] Valutare un forceCandidate che bypassa ogni altro controllo e forza il salvataggio in cache.
+- [x] Valutare un forceCandidate che bypassa ogni altro controllo e forza il salvataggio in cache.
 - [ ] Rifattorizzare per permettere l'utilizzo in funzioni senza classe.
-- [ ] Sostituire le mappe con expiration con le ExpirableMap.
-- [x] Refactor per permettere multipli adapters.
-- [x] Ipotizzare una option "keepAlive" che aggiorna il ttl del dato in cache ogni volta che viene richiamato il metodo sul cache hit.
-- [x] Sistemare disambiguazione (Stessa classe con stesso metodo in due percorsi diversi).
-- [x] Test.
-
-# Done
-
-- [x] Capire cosa succede se il set nel data cache non va a buon fine. --> Indicare nella documentazione che il set può fallire ma non è gestito. È l'options.cache passata che se ne deve occupare.
-- [x] Se passo request a 0? In generale sanificazione degli input.
-- [x] Capire come specificare meglio che con la candidateFunction la singola esecuzione deve essere tenuta in conto ai fini della messa in cache, ma non per il bypass del requestThreshold. Quindi comunque deve passare X volte true.
-- [x] Capire come "offuscare" il nome della chiave (Es. md5 o sha256).
-- [x] Non si verifica mai il caso in cui non c'è il millisecondThreshold in quanto i campi che non ci sono vengono presi dal default.
-- [x] Capire come spostare i log da options.console.log a un "onEvent", per esempio.
-- [x] Migliorare nomenclatura.
-- [x] Documentazione.
-- [x] Verificare se lo stato del decoratore è condiviso. Se così non fosse, allora non serve una mappa di runningQueries ma un singolo valore. --> Non è condiviso, ma lo stesso metodo può essere chiamato con argomenti differenti. Quindi non è possibile usare un singolo valore.
-- [x] Capire se si può agganciare il LogPerformance decorator al CacheCandidate. Trasformare il LogPerformance in una function e poi creare il decoratore che la esegua. Così facendo si può usare nel candidate. --> Meglio di no, il LogPerformance permette esecuzioni sincrone e asincrone, il CacheCandidate solo Async. Meglio lasciare così per il momento ma potrebbe diventare dipendenza quando andiamo a package separati.
-- [x] Result diventa query/promise. --> Rimane result perché su redis non posso salvare una promise.
-- [x] Rifattorizzare ttlTimeout: Non è un nome adatto, parliamo del tempo attuale di salvataggio in cache.
-- [x] Permettere funzione di candidatura custom a cui si passano gli args e il timeframeCache.
-- [x] Tipizzare timeframeCache
-- [x] Tutto ciò che è IF è una funzione per conto suo.
+- [ ] Sostituire le mappe con expiration con le ExpirableMap. --> Non possibile, il comportamento della ExpirableMap differisce troppo.
