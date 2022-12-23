@@ -1,3 +1,14 @@
+### 0.1.0 (2022-12-23)
+
+##### Documentation Changes
+
+*  removed done tab ([938f86f3](https://github.com/JointlyTech/cache-candidate/commit/938f86f3a9d6f19add228b7d5f3d7090cacd9a93))
+
+##### New Features
+
+*  added dependency keys ([032015a6](https://github.com/JointlyTech/cache-candidate/commit/032015a6f28e4677b22c37a5da64df0cf9086294))
+*  added dependency keys mechanism ([85e32cfa](https://github.com/JointlyTech/cache-candidate/commit/85e32cfa7cbb12c36322f55887d9f83db03e337b))
+
 #### 0.0.3 (2022-12-12)
 
 ##### Chores
