@@ -74,10 +74,11 @@ The value calculated based on candidate conditions which is then compared to the
 
 # ToDo
 
-- [ ] Cache Invalidation: Se sì, come? Ma soprattutto, perché?
-- [ ] Valutare un forceCandidate che bypassa ogni altro controllo e forza il salvataggio in cache.
+- [ ] Cache invalidation: allow both function and async functions instead of array only.
+- [x] Cache Invalidation: Se sì, come? Ma soprattutto, perché?
+- [x] Valutare un forceCandidate che bypassa ogni altro controllo e forza il salvataggio in cache.
 - [ ] Rifattorizzare per permettere l'utilizzo in funzioni senza classe.
-- [ ] Sostituire le mappe con expiration con le ExpirableMap.
+- [ ] Sostituire le mappe con expiration con le ExpirableMap. --> Non possibile, il comportamento della ExpirableMap differisce troppo.
 - [x] Refactor per permettere multipli adapters.
 - [x] Ipotizzare una option "keepAlive" che aggiorna il ttl del dato in cache ogni volta che viene richiamato il metodo sul cache hit.
 - [x] Sistemare disambiguazione (Stessa classe con stesso metodo in due percorsi diversi).
