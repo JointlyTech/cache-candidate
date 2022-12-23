@@ -1,12 +1,9 @@
-/**
- * Considerations:
- *  - The cache provides same keys because we are working on the same class coming from the same file. For testing purposes, we will instantiate a different class every time providing a step to the constructor and called methods.
- */
-
 import { manager } from './manager';
 import { MockClass } from './test/MockClass';
 import { MockClass as MockClass2 } from './test/MockClass2';
 import { MockClass as MockClass3 } from './test/MockClass3';
+import { MockClass as MockClass4 } from './test/MockClass4';
+
 import {
   step,
   eventHits,
@@ -14,14 +11,14 @@ import {
   ENOUGH_TIME,
   TTL,
   EXECUTION_MARGIN,
-  flushMap
+  flushMaps
 } from './test/options';
 
 const stepper = step();
 
 beforeEach(async () => {
   await sleep(ENOUGH_TIME);
-  flushMap();
+  flushMaps();
 });
 
 it('should verify cache is empty', async () => {
@@ -121,8 +118,30 @@ it('should fill manager map if dependencyKeys is defined as array', async () => 
   const step = stepper();
   const mock = new MockClass3(step, step, step, step);
   mock.mockFunction(step);
+  await sleep(EXECUTION_MARGIN);
   expect(manager.instances.size).toBe(2);
   mock.mockAsyncFunction(step);
+  await sleep(EXECUTION_MARGIN);
   expect(manager.instances.size).toBe(2);
 });
 
+it('should fill manager map if dependencyKeys is defined as function', async () => {
+  const step = stepper();
+  const mock = new MockClass4(step, step, step, step);
+  /*mock.mockFunction(step);
+  await sleep(EXECUTION_MARGIN);
+  expect(manager.instances.size).toBe(3);*/
+  await mock.mockAsyncFunction(step);
+  await sleep(EXECUTION_MARGIN);
+  expect(manager.instances.size).toBe(3);
+});
+
+it('should delete a record if invalidated', async () => {
+  const step = stepper();
+  const mock = new MockClass3(step, step, step, step);
+  mock.mockFunction(step);
+  await sleep(EXECUTION_MARGIN);
+  expect(manager.instances.size).toBe(2);
+  manager.invalidate('a');
+  expect(manager.instances.size).toBe(2);
+});

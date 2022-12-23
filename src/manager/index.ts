@@ -1,37 +1,47 @@
-export const manager = {
-  instances: new Map(),
-  register: ({key, dependencyKeys, cacheAdapter}) => {
-    for(const dependencyKey of dependencyKeys) {
-      if (!manager.instances.has(dependencyKey)) {
-        manager.instances.set(dependencyKey, [{
-          key,
-          cacheAdapter
-        }]);
-      } else {
-        manager.instances.get(dependencyKey).push({
-          key,
-          cacheAdapter
-        });
-      }
-    }
-  },
-  invalidate: ({dependencyKey}) => {
-    manager.instances.get(dependencyKey).forEach(({key, cacheAdapter}) => {
-      cacheAdapter.delete(key);
-    });
-  },
-  deleteKey: ({dataCacheRecord}) => { 
-    for (const [dependencyKey, keys] of manager.instances.entries()) {
-      if(keys.some(_key => _key.key === dataCacheRecord.key)) {
-        if(keys.length === 1) {
-          manager.instances.delete(dependencyKey);
+const makeManager = () => {
+  const instances = new Map();
+  return {
+    register: ({ key, dependencyKeys, cacheAdapter }) => {
+      for (const dependencyKey of dependencyKeys) {
+        if (!instances.has(dependencyKey)) {
+          instances.set(dependencyKey, [
+            {
+              key,
+              cacheAdapter
+            }
+          ]);
         } else {
-          manager.instances.set(dependencyKey, keys.filter(_key => _key.key !== dataCacheRecord.key));
+          instances.get(dependencyKey).push({
+            key,
+            cacheAdapter
+          });
         }
       }
-    }
-  }
-}
+    },
+    invalidate: (dependencyKey) => {
+      instances.get(dependencyKey).forEach(({ key, cacheAdapter }) => {
+        cacheAdapter.delete(key);
+      });
+    },
+    deleteKey: (dataCacheRecordKey: string) => {
+      for (const [dependencyKey, keys] of instances.entries()) {
+        if (keys.some((_key) => _key.key === dataCacheRecordKey)) {
+          if (keys.length === 1) {
+            instances.delete(dependencyKey);
+          } else {
+            instances.set(
+              dependencyKey,
+              keys.filter((_key) => _key.key !== dataCacheRecordKey)
+            );
+          }
+        }
+      }
+    },
+    instances
+  };
+};
+
+export const manager = makeManager();
 
 /*
 [abc][1,2,3]

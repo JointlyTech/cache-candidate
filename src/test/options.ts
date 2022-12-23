@@ -1,3 +1,4 @@
+import { manager } from '../manager';
 import { CacheCandidateOptions } from '../models';
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -58,8 +59,9 @@ export const options: Partial<CacheCandidateOptions> = {
   }
 };
 
-export function flushMap() {
+export function flushMaps() {
   for (const [key] of eventHits) {
     eventHits.set(key, 0);
   }
+  manager.instances.clear();
 }

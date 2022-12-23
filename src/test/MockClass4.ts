@@ -9,13 +9,28 @@ export class MockClass {
     public bAsync: number
   ) {}
 
-  @CacheCandidate({...options, ...{dependencyKeys: (data) => {return ['a', 'b'] }}})
+  @CacheCandidate({
+    ...options,
+    ...{
+      dependencyKeys: function (result) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(result);
+          }, 10);
+        });
+      }
+    }
+  })
   async mockAsyncFunction(step: number) {
-    return step;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([step, step + 1, step + 2]);
+      }, 10);
+    });
   }
 
-  @CacheCandidate({...options, ...{dependencyKeys: ['a', 'b']}})
+  @CacheCandidate({ ...options, ...{ dependencyKeys: (result) => result } })
   mockFunction(step: number) {
-    return step;
+    return [step, step + 1, step + 2];
   }
 }

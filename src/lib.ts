@@ -1,6 +1,7 @@
 import { createHash } from 'crypto';
 import { CacheCandidateOptionsDefault } from './default';
 import { manager } from './manager';
+import { DataCacheRecord } from './models';
 
 import {
   CacheCandidateOptions,
@@ -266,8 +267,34 @@ function handleResult({
     addDataCacheRecord({ options, key, result })
       .then(() => {
         options.events.onCacheSet({ key });
-        if(options.dependencyKeys) {
-          manager.register({ key, dependencyKeys: options.dependencyKeys, cacheAdapter: options.cache });
+        if (options.dependencyKeys) {
+          if (Array.isArray(options.dependencyKeys)) {
+            // If dependencyKeys is an array, register it.
+            manager.register({
+              key,
+              dependencyKeys: options.dependencyKeys,
+              cacheAdapter: options.cache
+            });
+          }
+          // If dependencyKeys is a function, register it when it resolves.
+          if (typeof options.dependencyKeys === 'function') {
+            const dependencyKeys = options.dependencyKeys(result);
+            if (dependencyKeys instanceof Promise) {
+              dependencyKeys.then((keys: Array<string>) => {
+                manager.register({
+                  key,
+                  dependencyKeys: keys,
+                  cacheAdapter: options.cache
+                });
+              });
+            } else {
+              manager.register({
+                key,
+                dependencyKeys: options.dependencyKeys(result),
+                cacheAdapter: options.cache
+              });
+            }
+          }
         }
       })
       .finally(() => {
@@ -340,14 +367,6 @@ function getExceedingAmountFromCandidateFunction(
   timeFrameCacheRecords: any
 ) {
   let exceedingAmount = 0;
-  /*if (options.candidateFunction(executionTime, ...args)) {
-    for (const timeFrameCacheRecord of timeFrameCacheRecords) {
-      if (
-        options.candidateFunction(timeFrameCacheRecord.executionTime, ...args)
-      )
-        exceedingAmount++;
-    }
-  }*/
   if (options.candidateFunction({ timeFrameCacheRecords, options, args }))
     exceedingAmount = options.requestsThreshold;
   return exceedingAmount;
