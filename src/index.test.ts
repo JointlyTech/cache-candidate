@@ -3,8 +3,10 @@
  *  - The cache provides same keys because we are working on the same class coming from the same file. For testing purposes, we will instantiate a different class every time providing a step to the constructor and called methods.
  */
 
+import { manager } from './manager';
 import { MockClass } from './test/MockClass';
 import { MockClass as MockClass2 } from './test/MockClass2';
+import { MockClass as MockClass3 } from './test/MockClass3';
 import {
   step,
   eventHits,
@@ -108,3 +110,19 @@ it('should make an item expire after TTL', async () => {
   expect(eventHits.get('onCacheSet')).toBe(2);
   expect(eventHits.get('onCacheHit')).toBe(1);
 });
+
+it('should expose manager', async () => {
+  const step = stepper();
+  const mock = new MockClass(step, step, step, step);
+  expect(manager).toBeDefined();
+});
+
+it('should fill manager map if dependencyKeys is defined as array', async () => {
+  const step = stepper();
+  const mock = new MockClass3(step, step, step, step);
+  mock.mockFunction(step);
+  expect(manager.instances.size).toBe(2);
+  mock.mockAsyncFunction(step);
+  expect(manager.instances.size).toBe(2);
+});
+

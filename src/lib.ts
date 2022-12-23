@@ -1,5 +1,7 @@
 import { createHash } from 'crypto';
 import { CacheCandidateOptionsDefault } from './default';
+import { manager } from './manager';
+
 import {
   CacheCandidateOptions,
   Events,
@@ -18,7 +20,6 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
 
   // Create an in-function running queries index
   const runningQueryCache: RunningQueryCache = new Map();
-  // const runningQuery: null | Promise<unknown> = null;
 
   // Generate a uniqid
   const uniqueIdentifier = uniqid();
@@ -219,6 +220,7 @@ async function addDataCacheRecord({ options, key, result }) {
 async function deleteDataCacheRecord({ options, key }) {
   await options.cache.delete(key);
   options.events.onCacheDelete({ key });
+  manager.deleteKey(key);
 }
 
 function handleResult({
@@ -264,6 +266,9 @@ function handleResult({
     addDataCacheRecord({ options, key, result })
       .then(() => {
         options.events.onCacheSet({ key });
+        if(options.dependencyKeys) {
+          manager.register({ key, dependencyKeys: options.dependencyKeys, cacheAdapter: options.cache });
+        }
       })
       .finally(() => {
         runningQueryCache.delete(key);
