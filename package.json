@@ -24,6 +24,7 @@
     "lint": "eslint ./src --ext .ts",
     "dev": "jest --watch",
     "test": "jest --no-cache",
+    "coverage": "jest --coverage",
     "release:common": "npm run build && git push --follow-tags origin main && npm publish --access public",
     "release:patch": "changelog -p && git add CHANGELOG.md && git commit -m 'docs: updated changelog' && npm version patch && npm run release:common",
     "release:minor": "changelog -m && git add CHANGELOG.md && git commit -m 'docs: updated changelog' && npm version minor && npm run release:common",
