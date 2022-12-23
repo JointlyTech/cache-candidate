@@ -1,7 +1,6 @@
 import { createHash } from 'crypto';
 import { CacheCandidateOptionsDefault } from './default';
 import { cacheCandidateDependencyManager } from './manager';
-import { DataCacheRecord } from './models';
 
 import {
   CacheCandidateOptions,
@@ -58,7 +57,7 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
             }, options.ttl)
           );
         }
-        return new Promise((resolve) => resolve(cachedData));
+        return Promise.resolve(cachedData);
       }
 
       // Check if Promise exists in runningQueries
