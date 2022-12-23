@@ -13,6 +13,12 @@ The conditions are, within the given `timeFrame`:
 - If a `millisecondsThreshold` is provided, it passed such threshold (Execution time) at least `requestThreshold` times.
 - If only a `requestThreshold` is provided (default), it is called at least `requestThreshold` times.
 
+You can pass an additional `dependencyKeys` property to the decorator options which provides an invalidation mechanism to be called manually in your codebase.  
+This property can be either an array of string, a function that returns an array of string or a function that returns a Promise fulfilled with an array of string.  
+Both the function and the Promise will receive the result of the method on which the CacheCandidate operates.  
+In case of an async method, the promise will be fulfilled before passing the result to the `dependencyKeys` function.  
+The `dependencyKeys` function will be called only if the cache adapter correctly sets the value in the cache (i.e. the `.set` method is fulfilled). 
+
 ## Key composition
 
 The cache key is composed based on the following criteria:
@@ -22,6 +28,41 @@ The cache key is composed based on the following criteria:
 - The arguments passed to the method. (JSON.stringify)
 - `instanceIdentifier`: A uniqid generated for each instance of the class. It uses the instance properties to generate the id. (JSON.stringify)
 - `uniqueIdentifier`: A uniqid generated to allow multiple files to contain the same class with the same method.
+
+## Cache invalidation
+
+The cache invalidation is done using the exported `cacheCandidateDependencyManager` object.  
+The object exposes the `invalidate` method which accepts a string.  
+The string is one of the dependency keys returned by the `dependencyKeys` function/array defined in the decorator options.  
+
+### Example
+
+```typescript
+import { cacheCandidate, cacheCandidateDependencyManager } from 'cache-candidate';
+
+class MyClass {
+  @CacheCandidate({
+    dependencyKeys: (users) => {
+      return users.map((user) => `users-${user.id}`);
+      },
+  })
+  public async getUsers() {
+    // Do something
+    return users;
+  }
+
+  public async updateUser(user) {
+    // Do something
+    cacheCandidateDependencyManager.invalidate(`users-${user.id}`);
+  }
+}
+
+const myClass = new MyClass();
+const users = await myClass.getUsers();
+users[0].name = 'New name';
+await myClass.updateUser(users[0]); // This will invalidate the cache
+```
+
 
 # Other Info
 
