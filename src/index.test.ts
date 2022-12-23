@@ -1,4 +1,4 @@
-import { manager } from './manager';
+import { cacheCandidateDependencyManager } from './manager';
 import { MockClass } from './test/MockClass';
 import { MockClass as MockClass2 } from './test/MockClass2';
 import { MockClass as MockClass3 } from './test/MockClass3';
@@ -111,7 +111,7 @@ it('should make an item expire after TTL', async () => {
 it('should expose manager', async () => {
   const step = stepper();
   const mock = new MockClass(step, step, step, step);
-  expect(manager).toBeDefined();
+  expect(cacheCandidateDependencyManager).toBeDefined();
 });
 
 it('should fill manager map if dependencyKeys is defined as array', async () => {
@@ -119,10 +119,10 @@ it('should fill manager map if dependencyKeys is defined as array', async () => 
   const mock = new MockClass3(step, step, step, step);
   mock.mockFunction(step);
   await sleep(EXECUTION_MARGIN);
-  expect(manager.instances.size).toBe(2);
+  expect(cacheCandidateDependencyManager.instances.size).toBe(2);
   mock.mockAsyncFunction(step);
   await sleep(EXECUTION_MARGIN);
-  expect(manager.instances.size).toBe(2);
+  expect(cacheCandidateDependencyManager.instances.size).toBe(2);
 });
 
 it('should fill manager map if dependencyKeys is defined as function', async () => {
@@ -133,7 +133,7 @@ it('should fill manager map if dependencyKeys is defined as function', async () 
   expect(manager.instances.size).toBe(3);*/
   await mock.mockAsyncFunction(step);
   await sleep(EXECUTION_MARGIN);
-  expect(manager.instances.size).toBe(3);
+  expect(cacheCandidateDependencyManager.instances.size).toBe(3);
 });
 
 it('should delete a record if invalidated', async () => {
@@ -141,7 +141,7 @@ it('should delete a record if invalidated', async () => {
   const mock = new MockClass3(step, step, step, step);
   mock.mockFunction(step);
   await sleep(EXECUTION_MARGIN);
-  expect(manager.instances.size).toBe(2);
-  manager.invalidate('a');
-  expect(manager.instances.size).toBe(2);
+  expect(cacheCandidateDependencyManager.instances.size).toBe(2);
+  cacheCandidateDependencyManager.invalidate('a');
+  expect(cacheCandidateDependencyManager.instances.size).toBe(2);
 });

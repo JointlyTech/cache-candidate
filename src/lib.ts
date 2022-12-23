@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import { CacheCandidateOptionsDefault } from './default';
-import { manager } from './manager';
+import { cacheCandidateDependencyManager } from './manager';
 import { DataCacheRecord } from './models';
 
 import {
@@ -221,7 +221,7 @@ async function addDataCacheRecord({ options, key, result }) {
 async function deleteDataCacheRecord({ options, key }) {
   await options.cache.delete(key);
   options.events.onCacheDelete({ key });
-  manager.deleteKey(key);
+  cacheCandidateDependencyManager.deleteKey(key);
 }
 
 function handleResult({
@@ -270,7 +270,7 @@ function handleResult({
         if (options.dependencyKeys) {
           if (Array.isArray(options.dependencyKeys)) {
             // If dependencyKeys is an array, register it.
-            manager.register({
+            cacheCandidateDependencyManager.register({
               key,
               dependencyKeys: options.dependencyKeys,
               cacheAdapter: options.cache
@@ -281,14 +281,14 @@ function handleResult({
             const dependencyKeys = options.dependencyKeys(result);
             if (dependencyKeys instanceof Promise) {
               dependencyKeys.then((keys: Array<string>) => {
-                manager.register({
+                cacheCandidateDependencyManager.register({
                   key,
                   dependencyKeys: keys,
                   cacheAdapter: options.cache
                 });
               });
             } else {
-              manager.register({
+              cacheCandidateDependencyManager.register({
                 key,
                 dependencyKeys: options.dependencyKeys(result),
                 cacheAdapter: options.cache

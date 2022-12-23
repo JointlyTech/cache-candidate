@@ -1,4 +1,4 @@
-const makeManager = () => {
+const makeDependencyManager = () => {
   const instances = new Map();
   return {
     register: ({ key, dependencyKeys, cacheAdapter }) => {
@@ -41,7 +41,7 @@ const makeManager = () => {
   };
 };
 
-export const manager = makeManager();
+export const cacheCandidateDependencyManager = makeDependencyManager();
 
 /*
 [abc][1,2,3]

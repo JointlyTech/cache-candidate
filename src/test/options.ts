@@ -1,4 +1,4 @@
-import { manager } from '../manager';
+import { cacheCandidateDependencyManager } from '../manager';
 import { CacheCandidateOptions } from '../models';
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -63,5 +63,5 @@ export function flushMaps() {
   for (const [key] of eventHits) {
     eventHits.set(key, 0);
   }
-  manager.instances.clear();
+  cacheCandidateDependencyManager.instances.clear();
 }
