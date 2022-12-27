@@ -1,7 +1,17 @@
+import { CacheCandidateCacheAdapter } from '../models';
+
 const makeDependencyManager = () => {
   const instances = new Map();
   return {
-    register: ({ key, dependencyKeys, cacheAdapter }) => {
+    register: ({
+      key,
+      dependencyKeys,
+      cacheAdapter
+    }: {
+      key: unknown;
+      dependencyKeys: Array<string>;
+      cacheAdapter: CacheCandidateCacheAdapter;
+    }) => {
       for (const dependencyKey of dependencyKeys) {
         if (!instances.has(dependencyKey)) {
           instances.set(dependencyKey, [
@@ -18,7 +28,15 @@ const makeDependencyManager = () => {
         }
       }
     },
-    invalidate: (dependencyKey) => {
+    invalidate: (dependencyKey: string | number) => {
+      if (typeof dependencyKey === 'number') {
+        dependencyKey = dependencyKey.toString();
+      }
+
+      if (!instances.has(dependencyKey)) {
+        return;
+      }
+
       instances.get(dependencyKey).forEach(({ key, cacheAdapter }) => {
         cacheAdapter.delete(key);
       });
