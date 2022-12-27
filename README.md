@@ -1,8 +1,10 @@
 # What is it?
 
-This is a library providing a decorator to cache the result of a method if given conditions are met.
+This is a library providing both a decorator and a higher-order function to cache the result of a method if given conditions are met.
 
 # How does it work?
+
+## Decorator
 
 The decorator expects to receive an object with a partial of the properties contained in the `CacheCandidateOptions` interface.  
 Every non-passed property will be set to its default value using the `CacheCandidateOptionsDefault` object.  
@@ -17,17 +19,31 @@ You can pass an additional `dependencyKeys` property to the decorator options wh
 This property can be either an array of string, a function that returns an array of string or a function that returns a Promise fulfilled with an array of string.  
 Both the function and the Promise will receive the result of the method on which the CacheCandidate operates.  
 In case of an async method, the promise will be fulfilled before passing the result to the `dependencyKeys` function.  
-The `dependencyKeys` function will be called only if the cache adapter correctly sets the value in the cache (i.e. the `.set` method is fulfilled). 
+The `dependencyKeys` function will be called only if the cache adapter correctly sets the value in the cache (i.e. the `.set` method is fulfilled).
+
+## Higher-order function
+
+Everything is the same as the decorator, but the function takes the original function as the first argument and the options as the second argument.  
+The function returns a new function that will return a Promise fulfilled with the cached value if the method has already been called with the same arguments and the conditions are met.
 
 ## Key composition
 
 The cache key is composed based on the following criteria:
+
+### Decorator
 
 - The class constructor name.
 - The method name.
 - The arguments passed to the method. (JSON.stringify)
 - `instanceIdentifier`: A uniqid generated for each instance of the class. It uses the instance properties to generate the id. (JSON.stringify)
 - `uniqueIdentifier`: A uniqid generated to allow multiple files to contain the same class with the same method.
+
+
+### Higher-order function
+
+- The arguments passed to the method. (JSON.stringify)
+- `uniqueIdentifier`: A uniqid generated to allow multiple files to contain the same class with the same method.
+
 
 ## Cache invalidation
 
@@ -112,7 +128,3 @@ The Map containing the running queries (Promises fulfilled or yet to be fulfille
 ### Comparation Value
 
 The value calculated based on candidate conditions which is then compared to the requestThreshold.
-
-# ToDo
-
-- [ ] Rifattorizzare per permettere l'utilizzo in funzioni senza classe.
