@@ -1,3 +1,4 @@
+import { cacheCandidate } from './lib';
 import { cacheCandidateDependencyManager } from './manager';
 import { MockClass } from './test/MockClass';
 import { MockClass as MockClass2 } from './test/MockClass2';
@@ -144,4 +145,36 @@ it('should delete a record if invalidated', async () => {
   expect(cacheCandidateDependencyManager.instances.size).toBe(2);
   cacheCandidateDependencyManager.invalidate('a');
   expect(cacheCandidateDependencyManager.instances.size).toBe(2);
+});
+
+it('should behave in the same way as a decorator if the higher-order function is used', async () => {
+  let counter = 0;
+  const mockFn = (step: number) =>
+    new Promise((resolve) => {
+      counter += step;
+      resolve(counter);
+    });
+  const wrappedMockFn = cacheCandidate(mockFn, {
+    requestsThreshold: 1,
+    dependencyKeys(result) {
+      return result;
+    }
+  });
+  let result = undefined;
+  result = await wrappedMockFn(1);
+  await sleep(EXECUTION_MARGIN);
+  expect(result).toBe(1);
+  result = await wrappedMockFn(1);
+  await sleep(EXECUTION_MARGIN);
+  expect(result).toBe(1);
+  result = await wrappedMockFn(1);
+  await sleep(EXECUTION_MARGIN);
+  expect(result).toBe(1);
+  cacheCandidateDependencyManager.invalidate(0);
+  await sleep(EXECUTION_MARGIN);
+  expect(cacheCandidateDependencyManager.instances.size).toBe(1);
+  cacheCandidateDependencyManager.invalidate(1);
+  await sleep(EXECUTION_MARGIN);
+  expect(cacheCandidateDependencyManager.instances.size).toBe(1);
+  await sleep(EXECUTION_MARGIN);
 });
