@@ -3,12 +3,15 @@ import { CacheCandidateOptionsDefault } from './default';
 import { cacheCandidateDependencyManager } from './manager';
 import {
   CacheCandidateOptions,
+  DataCacheRecordNotFound,
   Events,
   KeepAliveCache,
   RunningQueryCache,
+  RunningQueryRecordNotFound,
   TimeFrameCache
 } from './models';
-import { pippo } from './plugins';
+import { ExecuteHook } from './plugins';
+import { Hooks, PluginPayload } from './plugins/models';
 
 function isTimeFrameCacheRecordExpired(executionEnd: any, options: any) {
   return Date.now() < executionEnd + options.timeFrame;
@@ -51,7 +54,7 @@ function getRunningQueryRecord({
     options.events.onLog({ key, event: Events.RUNNING_QUERY });
     return runningQueryCache.get(key);
   }
-  return undefined;
+  return RunningQueryRecordNotFound;
 }
 
 export function getDataCacheKey(...args: any[]) {
@@ -78,14 +81,13 @@ async function getDataCacheRecord({
     // Remove the dataCache record if the time frame has passed.
     if (isDataCacheRecordExpired({ birthTime, options })) {
       await deleteDataCacheRecord({ options, key });
-      return undefined;
+      return DataCacheRecordNotFound;
     } else {
       // Return the cached data
-      options.events.onCacheHit({ key });
       return result;
     }
   }
-  return undefined;
+  return DataCacheRecordNotFound;
 }
 
 async function addDataCacheRecord({ options, key, result }) {
@@ -113,7 +115,8 @@ function handleResult({
   options,
   timeframeCache,
   keepAliveTimeoutCache,
-  args
+  args,
+  HookPayload
 }: {
   result: unknown;
   runningQueryCache: RunningQueryCache;
@@ -123,6 +126,7 @@ function handleResult({
   timeframeCache: TimeFrameCache;
   keepAliveTimeoutCache: KeepAliveCache;
   args: any[];
+  HookPayload: PluginPayload;
 }): any {
   const executionEnd = Date.now();
   const executionTime = executionEnd - executionStart;
@@ -145,8 +149,14 @@ function handleResult({
   });
 
   if (exceedingAmount >= options.requestsThreshold) {
+    ExecuteHook(Hooks.DATACACHE_RECORD_ADD_PRE, options.plugins, HookPayload);
     addDataCacheRecord({ options, key, result })
       .then(async () => {
+        ExecuteHook(
+          Hooks.DATACACHE_RECORD_ADD_POST,
+          options.plugins,
+          HookPayload
+        );
         options.events.onCacheSet({ key });
         if (options.dependencyKeys !== undefined) {
           let dependencyKeys: any = options.dependencyKeys;
@@ -297,9 +307,18 @@ export async function letsCandidate({
   args: any[];
   originalMethod: (...args: any[]) => Promise<unknown>;
 }) {
+  const HookPayload = {
+    options,
+    key,
+    keepAliveTimeoutCache,
+    runningQueryCache,
+    timeframeCache,
+    fnArgs: args
+  };
+  ExecuteHook(Hooks.INIT, options.plugins, HookPayload);
   // Check if result exists in dataCache
   const cachedData = await getDataCacheRecord({ options, key });
-  if (typeof cachedData !== 'undefined') {
+  if (cachedData !== DataCacheRecordNotFound) {
     if (options.keepAlive) {
       refreshKeepAliveRecord({
         keepAliveTimeoutCache,
@@ -307,6 +326,12 @@ export async function letsCandidate({
         options
       });
     }
+
+    ExecuteHook(Hooks.CACHE_HIT, options.plugins, {
+      ...HookPayload,
+      result: cachedData
+    });
+    options.events.onCacheHit({ key });
     return Promise.resolve(cachedData);
   }
 
@@ -316,18 +341,31 @@ export async function letsCandidate({
     key,
     runningQueryCache
   });
-  if (typeof runningQuery !== 'undefined') return runningQuery;
+
+  if (runningQuery !== RunningQueryRecordNotFound) {
+    ExecuteHook(Hooks.CACHE_HIT, options.plugins, {
+      ...HookPayload,
+      result: runningQuery
+    });
+    options.events.onCacheHit({ key });
+    return runningQuery;
+  }
 
   // Check the timeframeCache and delete every element that has passed the time frame.
   expireTimeFrameCacheRecords({ options, key, timeframeCache });
 
   // Execute the function
+  ExecuteHook(Hooks.EXECUTION_PRE, options.plugins, HookPayload);
   options.events.onBeforeFunctionExecution({ key });
   const executionStart = Date.now();
   const execution = originalMethod(...args);
+  ExecuteHook(Hooks.EXECUTION_POST, options.plugins, {
+    ...HookPayload,
+    result: execution
+  });
   // If execution is not a promise, handle the result and return it.
   if (!(execution instanceof Promise)) {
-    pippo('a', 'b')(handleResult)({
+    handleResult({
       result: execution,
       runningQueryCache,
       key,
@@ -335,14 +373,15 @@ export async function letsCandidate({
       options,
       timeframeCache,
       keepAliveTimeoutCache,
-      args
+      args,
+      HookPayload
     });
     return execution;
   }
 
   runningQueryCache.set(key, execution);
   execution.then((result: unknown) =>
-    pippo('a', 'b')(handleResult)({
+    handleResult({
       result,
       runningQueryCache,
       key,
@@ -350,7 +389,8 @@ export async function letsCandidate({
       options,
       timeframeCache,
       keepAliveTimeoutCache,
-      args
+      args,
+      HookPayload
     })
   );
 

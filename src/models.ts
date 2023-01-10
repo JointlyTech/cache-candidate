@@ -68,3 +68,6 @@ export enum Events {
   CHECKING_MILLISECOND_THRESHOLD = 'CHECKING_MILLISECOND_THRESHOLD',
   CHECKING_REQUESTS_THRESHOLD = 'CHECKING_REQUESTS_THRESHOLD'
 }
+
+export const DataCacheRecordNotFound = Symbol('DataCacheRecordNotFound');
+export const RunningQueryRecordNotFound = Symbol('RunningQueryRecordNotFound');
