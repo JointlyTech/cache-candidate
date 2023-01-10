@@ -1,3 +1,5 @@
+import { CacheCandidatePlugin } from './plugins/models';
+
 export interface CandidateFunctionOptions {
   timeFrameCacheRecords: Array<TimeFrameCacheRecord>;
   options: CacheCandidateOptions;
@@ -32,6 +34,7 @@ export interface CacheCandidateOptions {
     }) => void;
     onLog: ({ key, event }: { key: string; event: Events }) => void;
   };
+  plugins?: Array<CacheCandidatePlugin>;
   dependencyKeys?:
     | string
     | number

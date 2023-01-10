@@ -8,6 +8,7 @@ import {
   RunningQueryCache,
   TimeFrameCache
 } from './models';
+import { pippo } from './plugins';
 
 function isTimeFrameCacheRecordExpired(executionEnd: any, options: any) {
   return Date.now() < executionEnd + options.timeFrame;
@@ -326,7 +327,7 @@ export async function letsCandidate({
   const execution = originalMethod(...args);
   // If execution is not a promise, handle the result and return it.
   if (!(execution instanceof Promise)) {
-    handleResult({
+    pippo('a', 'b')(handleResult)({
       result: execution,
       runningQueryCache,
       key,
@@ -341,7 +342,7 @@ export async function letsCandidate({
 
   runningQueryCache.set(key, execution);
   execution.then((result: unknown) =>
-    handleResult({
+    pippo('a', 'b')(handleResult)({
       result,
       runningQueryCache,
       key,

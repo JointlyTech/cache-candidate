@@ -11,7 +11,6 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
     options
   } = getInitialState(_options);
 
-  // Execute the function and get the execution times.
   return function (
     target: any,
     propertyKey: string,
@@ -55,7 +54,6 @@ export function cacheCandidate(
     options
   } = getInitialState(_options);
 
-  // Execute the function and get the execution times.
   return async (...args: any[]) =>
     letsCandidate({
       options,
