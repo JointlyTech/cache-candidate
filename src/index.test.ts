@@ -111,7 +111,7 @@ it('should make an item expire after TTL', async () => {
 
 it('should expose manager', async () => {
   const step = stepper();
-  const mock = new MockClass(step, step, step, step);
+  new MockClass(step, step, step, step);
   expect(cacheCandidateDependencyManager).toBeDefined();
 });
 
@@ -160,7 +160,7 @@ it('should behave in the same way as a decorator if the higher-order function is
       return result;
     }
   });
-  let result = undefined;
+  let result: unknown;
   result = await wrappedMockFn(1);
   await sleep(EXECUTION_MARGIN);
   expect(result).toBe(1);

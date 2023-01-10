@@ -288,19 +288,23 @@ export async function letsCandidate({
   args,
   originalMethod
 }: {
-  options;
-  key;
-  keepAliveTimeoutCache;
-  runningQueryCache;
-  timeframeCache;
-  args;
-  originalMethod;
+  options: CacheCandidateOptions;
+  key: string;
+  keepAliveTimeoutCache: KeepAliveCache;
+  runningQueryCache: RunningQueryCache;
+  timeframeCache: TimeFrameCache;
+  args: any[];
+  originalMethod: (...args: any[]) => Promise<unknown>;
 }) {
   // Check if result exists in dataCache
   const cachedData = await getDataCacheRecord({ options, key });
   if (typeof cachedData !== 'undefined') {
     if (options.keepAlive) {
-      refreshKeepAliveRecord({ keepAliveTimeoutCache, key, options });
+      refreshKeepAliveRecord({
+        keepAliveTimeoutCache,
+        key,
+        options
+      });
     }
     return Promise.resolve(cachedData);
   }

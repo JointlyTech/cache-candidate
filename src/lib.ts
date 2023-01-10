@@ -22,7 +22,7 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
     descriptor.value = async function (...args: any[]) {
       // A uniqid generated for each instance of the class. It uses the instance properties to generate the id. (JSON.stringify)
       const instanceIdentifier = target.constructor.name + JSON.stringify(this);
-      const key = getDataCacheKey([
+      const dataCacheKey = getDataCacheKey([
         target.constructor.name,
         propertyKey,
         uniqueIdentifier,
@@ -32,7 +32,7 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
 
       return letsCandidate({
         options,
-        key,
+        key: dataCacheKey,
         keepAliveTimeoutCache,
         runningQueryCache,
         timeframeCache,
@@ -44,7 +44,7 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
 }
 
 export function cacheCandidate(
-  fn: Function,
+  fn: (...args: any[]) => any,
   _options: Partial<CacheCandidateOptions> = {}
 ) {
   const {
@@ -56,17 +56,14 @@ export function cacheCandidate(
   } = getInitialState(_options);
 
   // Execute the function and get the execution times.
-  return async function (...args: any[]) {
-    const key = getDataCacheKey([uniqueIdentifier, JSON.stringify(args)]);
-
-    return letsCandidate({
+  return async (...args: any[]) =>
+    letsCandidate({
       options,
-      key,
+      key: getDataCacheKey([uniqueIdentifier, JSON.stringify(args)]),
       keepAliveTimeoutCache,
       runningQueryCache,
       timeframeCache,
       args,
       originalMethod: fn
     });
-  };
 }
