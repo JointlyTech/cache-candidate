@@ -1,4 +1,4 @@
-import { CacheCandidateCacheAdapter } from '../models';
+import { CacheCandidateCacheAdapter } from '../../../models';
 
 const makeDependencyManager = () => {
   const instances = new Map();

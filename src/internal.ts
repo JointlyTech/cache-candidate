@@ -1,6 +1,5 @@
 import { createHash } from 'crypto';
 import { CacheCandidateOptionsDefault } from './default';
-import { cacheCandidateDependencyManager } from './manager';
 import {
   CacheCandidateOptions,
   DataCacheRecordNotFound,
@@ -74,13 +73,15 @@ function isDataCacheRecordExpired({
 
 async function getDataCacheRecord({
   options,
-  key
+  key,
+  HookPayload
 }): Promise<unknown | undefined> {
   if (await options.cache.has(key)) {
     const { result, birthTime } = await options.cache.get(key);
     // Remove the dataCache record if the time frame has passed.
     if (isDataCacheRecordExpired({ birthTime, options })) {
-      await deleteDataCacheRecord({ options, key });
+      await deleteDataCacheRecord({ options, key, HookPayload });
+      options.events.onCacheDelete({ key });
       return DataCacheRecordNotFound;
     } else {
       // Return the cached data
@@ -101,10 +102,12 @@ async function addDataCacheRecord({ options, key, result }) {
   );
 }
 
-async function deleteDataCacheRecord({ options, key }) {
+async function deleteDataCacheRecord({ options, key, HookPayload }) {
+  ExecuteHook(Hooks.DATACACHE_RECORD_DELETE_PRE, options.plugins, HookPayload);
   await options.cache.delete(key);
-  options.events.onCacheDelete({ key });
-  cacheCandidateDependencyManager.deleteKey(key);
+  ExecuteHook(Hooks.DATACACHE_RECORD_DELETE_POST, options.plugins, HookPayload);
+  /** @todo: check */
+  //cacheCandidateDependencyManager.deleteKey(key);
 }
 
 function handleResult({
@@ -158,7 +161,8 @@ function handleResult({
           HookPayload
         );
         options.events.onCacheSet({ key });
-        if (options.dependencyKeys !== undefined) {
+        /** @todo: check */
+        /*if (options.dependencyKeys !== undefined) {
           let dependencyKeys: any = options.dependencyKeys;
           dependencyKeys = await remapDependencyKeys(dependencyKeys, result);
           cacheCandidateDependencyManager.register({
@@ -166,43 +170,21 @@ function handleResult({
             dependencyKeys,
             cacheAdapter: options.cache
           });
-        }
+        }*/
       })
       .finally(() => {
         runningQueryCache.delete(key);
         keepAliveTimeoutCache.set(
           key,
           setTimeout(() => {
-            deleteDataCacheRecord({ options, key });
+            deleteDataCacheRecord({ options, key, HookPayload });
           }, options.ttl)
         );
       });
   }
 }
 
-async function remapDependencyKeys(dependencyKeys: any, result: unknown) {
-  if (typeof dependencyKeys === 'function') {
-    dependencyKeys = dependencyKeys(result);
-    if (dependencyKeys instanceof Promise) {
-      dependencyKeys = await dependencyKeys;
-    }
-  }
-
-  if (Array.isArray(dependencyKeys)) {
-    dependencyKeys = dependencyKeys.map((key) => {
-      return typeof key === 'number' ? key.toString() : key;
-    });
-  }
-
-  if (typeof dependencyKeys === 'number') {
-    dependencyKeys = [dependencyKeys.toString()];
-  }
-
-  if (typeof dependencyKeys === 'string') {
-    dependencyKeys = [dependencyKeys];
-  }
-  return dependencyKeys;
-}
+/** @todo: check */
 
 function getExceedingAmount({
   options,
@@ -317,7 +299,7 @@ export async function letsCandidate({
   };
   ExecuteHook(Hooks.INIT, options.plugins, HookPayload);
   // Check if result exists in dataCache
-  const cachedData = await getDataCacheRecord({ options, key });
+  const cachedData = await getDataCacheRecord({ options, key, HookPayload });
   if (cachedData !== DataCacheRecordNotFound) {
     if (options.keepAlive) {
       refreshKeepAliveRecord({

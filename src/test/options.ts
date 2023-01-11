@@ -1,4 +1,4 @@
-import { cacheCandidateDependencyManager } from '../manager';
+import { cacheCandidateDependencyManager } from '../plugins/poc/manager';
 import { CacheCandidateOptions } from '../models';
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));

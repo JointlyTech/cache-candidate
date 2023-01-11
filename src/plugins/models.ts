@@ -14,8 +14,8 @@ export enum Hooks {
   EXECUTION_POST = 'EXECUTION_POST',
   DATACACHE_RECORD_ADD_PRE = 'DATACACHE_RECORD_ADD_PRE',
   DATACACHE_RECORD_ADD_POST = 'DATACACHE_RECORD_ADD_POST',
-  //DATACACHE_RECORD_DELETE_PRE = 'DATACACHE_RECORD_DELETE_PRE',
-  //DATACACHE_RECORD_DELETE_POST = 'DATACACHE_RECORD_DELETE_POST',
+  DATACACHE_RECORD_DELETE_PRE = 'DATACACHE_RECORD_DELETE_PRE',
+  DATACACHE_RECORD_DELETE_POST = 'DATACACHE_RECORD_DELETE_POST',
   CACHE_HIT = 'CACHE_HIT'
   //CACHE_MISS = 'CACHE_MISS',
 }
@@ -29,3 +29,12 @@ export type CacheCandidatePlugin = {
   name: string;
   hooks: Array<ActionableHook>;
 };
+
+export type CacheCandidatePluginAdditionalParameters = {
+  additionalParameters?: {
+    [key: string]: any;
+  };
+};
+
+export type CacheCandidatePluginWithAdditionalParameters =
+  CacheCandidatePlugin & CacheCandidatePluginAdditionalParameters;
