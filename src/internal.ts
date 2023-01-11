@@ -81,7 +81,6 @@ async function getDataCacheRecord({
     // Remove the dataCache record if the time frame has passed.
     if (isDataCacheRecordExpired({ birthTime, options })) {
       await deleteDataCacheRecord({ options, key, HookPayload });
-      options.events.onCacheDelete({ key });
       return DataCacheRecordNotFound;
     } else {
       // Return the cached data
@@ -106,6 +105,7 @@ async function deleteDataCacheRecord({ options, key, HookPayload }) {
   ExecuteHook(Hooks.DATACACHE_RECORD_DELETE_PRE, options.plugins, HookPayload);
   await options.cache.delete(key);
   ExecuteHook(Hooks.DATACACHE_RECORD_DELETE_POST, options.plugins, HookPayload);
+  options.events.onCacheDelete({ key });
   /** @todo: check */
   //cacheCandidateDependencyManager.deleteKey(key);
 }
@@ -183,8 +183,6 @@ function handleResult({
       });
   }
 }
-
-/** @todo: check */
 
 function getExceedingAmount({
   options,
