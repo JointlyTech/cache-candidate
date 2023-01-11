@@ -155,11 +155,10 @@ function handleResult({
     ExecuteHook(Hooks.DATACACHE_RECORD_ADD_PRE, options.plugins, HookPayload);
     addDataCacheRecord({ options, key, result })
       .then(async () => {
-        ExecuteHook(
-          Hooks.DATACACHE_RECORD_ADD_POST,
-          options.plugins,
-          HookPayload
-        );
+        ExecuteHook(Hooks.DATACACHE_RECORD_ADD_POST, options.plugins, {
+          ...HookPayload,
+          result
+        });
         options.events.onCacheSet({ key });
         /** @todo: check */
         /*if (options.dependencyKeys !== undefined) {
@@ -288,7 +287,7 @@ export async function letsCandidate({
   originalMethod: (...args: any[]) => Promise<unknown>;
 }) {
   const HookPayload = {
-    options,
+    options: { ...options, plugins: undefined },
     key,
     keepAliveTimeoutCache,
     runningQueryCache,

@@ -4,7 +4,6 @@ import { MockClass } from './test/MockClass';
 import { MockClass as MockClass2 } from './test/MockClass2';
 import { MockClass as MockClass3 } from './test/MockClass3';
 import { MockClass as MockClass4 } from './test/MockClass4';
-import { PluginDependencyKeys } from './plugins/poc/dependency-keys';
 
 import {
   step,
@@ -13,7 +12,8 @@ import {
   ENOUGH_TIME,
   TTL,
   EXECUTION_MARGIN,
-  flushMaps
+  flushMaps,
+  pluginsOptions
 } from './test/options';
 
 const stepper = step();
@@ -157,14 +157,7 @@ describe('CacheCandidatePlugin - CacheCandidate', () => {
       });
     const wrappedMockFn = cacheCandidate(mockFn, {
       requestsThreshold: 1,
-      plugins: [
-        {
-          ...PluginDependencyKeys,
-          ...{
-            additionalParameters: { dependencyKeys: (result: number) => result }
-          }
-        }
-      ]
+      ...pluginsOptions()
     });
     let result: unknown;
     result = await wrappedMockFn(1);

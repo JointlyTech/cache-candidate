@@ -6,22 +6,23 @@ export const PluginDependencyKeys: CacheCandidatePlugin = {
   hooks: [
     {
       hook: Hooks.DATACACHE_RECORD_DELETE_POST,
-      action: async ({ options, key, fnArgs }) => {
+      action: async ({ options, key, fnArgs }, additionalParameters) => {
         cacheCandidateDependencyManager.deleteKey(key);
       }
     },
     {
       hook: Hooks.DATACACHE_RECORD_ADD_POST,
-      action: async ({ options, key, fnArgs, result }) => {
-        if (options.dependencyKeys !== undefined) {
-          let dependencyKeys: any = options.dependencyKeys;
-          dependencyKeys = await remapDependencyKeys(dependencyKeys, result);
-          cacheCandidateDependencyManager.register({
-            key,
-            dependencyKeys,
-            cacheAdapter: options.cache
-          });
-        }
+      action: async (
+        { options, key, fnArgs, result },
+        additionalParameters
+      ) => {
+        let dependencyKeys: any = additionalParameters.dependencyKeys;
+        dependencyKeys = await remapDependencyKeys(dependencyKeys, result);
+        cacheCandidateDependencyManager.register({
+          key,
+          dependencyKeys,
+          cacheAdapter: options.cache
+        });
       }
     }
   ]

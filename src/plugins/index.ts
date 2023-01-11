@@ -1,15 +1,19 @@
 import { hook } from 'hook-fn';
-import { CacheCandidatePlugin, Hooks, PluginPayload } from './models';
+import {
+  CacheCandidatePluginWithAdditionalParameters,
+  Hooks,
+  PluginPayload
+} from './models';
 
 export function ExecuteHook(
   hook: Hooks,
-  plugins: Array<CacheCandidatePlugin> = [],
+  plugins: Array<CacheCandidatePluginWithAdditionalParameters> = [],
   payload: PluginPayload
 ) {
   for (const plugin of plugins) {
     const actionableHook = plugin.hooks.find((h) => h.hook === hook);
     if (actionableHook) {
-      actionableHook.action(payload);
+      actionableHook.action(payload, plugin.additionalParameters);
     }
   }
 }

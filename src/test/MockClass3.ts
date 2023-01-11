@@ -1,5 +1,5 @@
 import { CacheCandidate } from '../lib';
-import { options } from './options';
+import { options, pluginsOptions } from './options';
 
 export class MockClass {
   constructor(
@@ -9,12 +9,12 @@ export class MockClass {
     public bAsync: number
   ) {}
 
-  @CacheCandidate({ ...options, ...{ dependencyKeys: ['a', 'b'] } })
+  @CacheCandidate({ ...options, ...pluginsOptions(['a', 'b']) })
   async mockAsyncFunction(step: number) {
     return step;
   }
 
-  @CacheCandidate({ ...options, ...{ dependencyKeys: ['a', 'b'] } })
+  @CacheCandidate({ ...options, ...pluginsOptions(['a', 'b']) })
   mockFunction(step: number) {
     return step;
   }

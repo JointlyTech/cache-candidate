@@ -22,7 +22,7 @@ export enum Hooks {
 
 export type ActionableHook = {
   hook: Hooks;
-  action: (payload: PluginPayload) => void;
+  action: (payload: PluginPayload, additionalParameters: any) => void;
 };
 
 export type CacheCandidatePlugin = {

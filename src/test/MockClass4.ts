@@ -1,5 +1,5 @@
 import { CacheCandidate } from '../lib';
-import { options } from './options';
+import { options, pluginsOptions } from './options';
 
 export class MockClass {
   constructor(
@@ -11,15 +11,13 @@ export class MockClass {
 
   @CacheCandidate({
     ...options,
-    ...{
-      dependencyKeys: function (result) {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(result);
-          }, 10);
-        });
-      }
-    }
+    ...pluginsOptions(function (result) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(result);
+        }, 10);
+      });
+    })
   })
   async mockAsyncFunction(step: number) {
     return new Promise((resolve) => {
@@ -29,7 +27,7 @@ export class MockClass {
     });
   }
 
-  @CacheCandidate({ ...options, ...{ dependencyKeys: (result) => result } })
+  @CacheCandidate({ ...options, ...pluginsOptions((result) => result) })
   mockFunction(step: number) {
     return [step, step + 1, step + 2];
   }
