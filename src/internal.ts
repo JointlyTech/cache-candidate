@@ -159,12 +159,14 @@ function handleResult({
       })
       .finally(() => {
         runningQueryCache.delete(key);
-        keepAliveTimeoutCache.set(
-          key,
-          setTimeout(() => {
-            deleteDataCacheRecord({ options, key });
-          }, options.ttl)
-        );
+        if (options.keepAlive) {
+          keepAliveTimeoutCache.set(
+            key,
+            setTimeout(() => {
+              deleteDataCacheRecord({ options, key });
+            }, options.ttl)
+          );
+        }
       });
   }
 }
