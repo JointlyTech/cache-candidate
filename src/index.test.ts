@@ -157,6 +157,7 @@ describe('CacheCandidatePlugin - CacheCandidate', () => {
       });
     const wrappedMockFn = cacheCandidate(mockFn, {
       requestsThreshold: 1,
+      ttl: 800,
       ...pluginsOptions()
     });
     let result: unknown;
