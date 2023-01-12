@@ -106,8 +106,6 @@ async function deleteDataCacheRecord({ options, key, HookPayload }) {
   await options.cache.delete(key);
   ExecuteHook(Hooks.DATACACHE_RECORD_DELETE_POST, options.plugins, HookPayload);
   options.events.onCacheDelete({ key });
-  /** @todo: check */
-  //cacheCandidateDependencyManager.deleteKey(key);
 }
 
 function handleResult({
@@ -160,16 +158,6 @@ function handleResult({
           result
         });
         options.events.onCacheSet({ key });
-        /** @todo: check */
-        /*if (options.dependencyKeys !== undefined) {
-          let dependencyKeys: any = options.dependencyKeys;
-          dependencyKeys = await remapDependencyKeys(dependencyKeys, result);
-          cacheCandidateDependencyManager.register({
-            key,
-            dependencyKeys,
-            cacheAdapter: options.cache
-          });
-        }*/
       })
       .finally(() => {
         runningQueryCache.delete(key);
