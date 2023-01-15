@@ -157,6 +157,9 @@ function handleResult({
           });
         }
       })
+      .catch((error) => {
+        options.events.onCacheSetError({ key, error });
+      })
       .finally(() => {
         runningQueryCache.delete(key);
         keepAliveTimeoutCache.set(

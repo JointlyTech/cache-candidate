@@ -31,6 +31,7 @@ export interface CacheCandidateOptions {
       executionTime: number;
     }) => void;
     onLog: ({ key, event }: { key: string; event: Events }) => void;
+    onCacheSetError: ({ key, error }: { key: string; error: Error }) => void;
   };
   dependencyKeys?:
     | string
