@@ -57,7 +57,7 @@ export interface TimeFrameCacheRecord {
 
 export type TimeFrameCache = Map<string, Array<TimeFrameCacheRecord>>;
 export type RunningQueryCache = Map<string, Promise<any>>;
-export type KeepAliveCache = Map<string, NodeJS.Timeout>;
+export type TimeFrameTimeoutCache = Map<string, NodeJS.Timeout>;
 
 export enum Events {
   RUNNING_QUERY = 'RUNNING_QUERY',
