@@ -7,6 +7,7 @@ export const CacheCandidateOptionsDefault: CacheCandidateOptions = {
   requestsThreshold: 3,
   cache: makeAsyncMap(),
   keepAlive: false,
+  plugins: [],
   events: {
     onCacheHit: (_) => {
       return _;

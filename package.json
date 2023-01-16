@@ -62,5 +62,9 @@
     "url": "git://github.com/JointlyTech/cache-candidate.git"
   },
   "license": "MIT",
-  "author": "Jointly <dev@jointly.pro>"
+  "author": "Jointly <dev@jointly.pro>",
+  "dependencies": {
+    "@jointly/cache-candidate-plugin-base": "^1.0.0",
+    "hook-fn": "^1.0.3"
+  }
 }

@@ -1,3 +1,5 @@
+import { CacheCandidatePluginWithAdditionalParameters } from '@jointly/cache-candidate-plugin-base';
+
 export interface CandidateFunctionOptions {
   timeFrameCacheRecords: Array<TimeFrameCacheRecord>;
   options: CacheCandidateOptions;
@@ -32,17 +34,7 @@ export interface CacheCandidateOptions {
     }) => void;
     onLog: ({ key, event }: { key: string; event: Events }) => void;
   };
-  dependencyKeys?:
-    | string
-    | number
-    | Array<string | number>
-    | ((
-        result: DataCacheRecord['result']
-      ) =>
-        | string
-        | number
-        | Array<string | number>
-        | Promise<Array<string> | Array<number>>);
+  plugins?: Array<CacheCandidatePluginWithAdditionalParameters>;
 }
 
 export interface DataCacheRecord {
@@ -65,3 +57,6 @@ export enum Events {
   CHECKING_MILLISECOND_THRESHOLD = 'CHECKING_MILLISECOND_THRESHOLD',
   CHECKING_REQUESTS_THRESHOLD = 'CHECKING_REQUESTS_THRESHOLD'
 }
+
+export const DataCacheRecordNotFound = Symbol('DataCacheRecordNotFound');
+export const RunningQueryRecordNotFound = Symbol('RunningQueryRecordNotFound');

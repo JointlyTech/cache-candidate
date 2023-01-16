@@ -1,13 +1,16 @@
 import { createHash } from 'crypto';
 import { CacheCandidateOptionsDefault } from './default';
-import { cacheCandidateDependencyManager } from './manager';
 import {
   CacheCandidateOptions,
+  DataCacheRecordNotFound,
   Events,
   KeepAliveCache,
   RunningQueryCache,
+  RunningQueryRecordNotFound,
   TimeFrameCache
 } from './models';
+import { ExecuteHook } from './plugins';
+import { Hooks, PluginPayload } from '@jointly/cache-candidate-plugin-base';
 
 function isTimeFrameCacheRecordExpired(executionEnd: any, options: any) {
   return Date.now() < executionEnd + options.timeFrame;
@@ -50,7 +53,7 @@ function getRunningQueryRecord({
     options.events.onLog({ key, event: Events.RUNNING_QUERY });
     return runningQueryCache.get(key);
   }
-  return undefined;
+  return RunningQueryRecordNotFound;
 }
 
 export function getDataCacheKey(...args: any[]) {
@@ -70,21 +73,21 @@ function isDataCacheRecordExpired({
 
 async function getDataCacheRecord({
   options,
-  key
+  key,
+  HookPayload
 }): Promise<unknown | undefined> {
   if (await options.cache.has(key)) {
     const { result, birthTime } = await options.cache.get(key);
     // Remove the dataCache record if the time frame has passed.
     if (isDataCacheRecordExpired({ birthTime, options })) {
-      await deleteDataCacheRecord({ options, key });
-      return undefined;
+      await deleteDataCacheRecord({ options, key, HookPayload });
+      return DataCacheRecordNotFound;
     } else {
       // Return the cached data
-      options.events.onCacheHit({ key });
       return result;
     }
   }
-  return undefined;
+  return DataCacheRecordNotFound;
 }
 
 async function addDataCacheRecord({ options, key, result }) {
@@ -98,13 +101,22 @@ async function addDataCacheRecord({ options, key, result }) {
   );
 }
 
-async function deleteDataCacheRecord({ options, key }) {
+async function deleteDataCacheRecord({ options, key, HookPayload }) {
+  await ExecuteHook(
+    Hooks.DATACACHE_RECORD_DELETE_PRE,
+    options.plugins,
+    HookPayload
+  );
   await options.cache.delete(key);
+  await ExecuteHook(
+    Hooks.DATACACHE_RECORD_DELETE_POST,
+    options.plugins,
+    HookPayload
+  );
   options.events.onCacheDelete({ key });
-  cacheCandidateDependencyManager.deleteKey(key);
 }
 
-function handleResult({
+async function handleResult({
   result,
   runningQueryCache,
   key,
@@ -112,7 +124,8 @@ function handleResult({
   options,
   timeframeCache,
   keepAliveTimeoutCache,
-  args
+  args,
+  HookPayload
 }: {
   result: unknown;
   runningQueryCache: RunningQueryCache;
@@ -122,7 +135,8 @@ function handleResult({
   timeframeCache: TimeFrameCache;
   keepAliveTimeoutCache: KeepAliveCache;
   args: any[];
-}): any {
+  HookPayload: PluginPayload;
+}): Promise<void> {
   const executionEnd = Date.now();
   const executionTime = executionEnd - executionStart;
   options.events.onAfterFunctionExecution({ key, executionTime });
@@ -144,53 +158,29 @@ function handleResult({
   });
 
   if (exceedingAmount >= options.requestsThreshold) {
+    await ExecuteHook(
+      Hooks.DATACACHE_RECORD_ADD_PRE,
+      options.plugins,
+      HookPayload
+    );
     addDataCacheRecord({ options, key, result })
       .then(async () => {
+        await ExecuteHook(Hooks.DATACACHE_RECORD_ADD_POST, options.plugins, {
+          ...HookPayload,
+          result
+        });
         options.events.onCacheSet({ key });
-        if (options.dependencyKeys !== undefined) {
-          let dependencyKeys: any = options.dependencyKeys;
-          dependencyKeys = await remapDependencyKeys(dependencyKeys, result);
-          cacheCandidateDependencyManager.register({
-            key,
-            dependencyKeys,
-            cacheAdapter: options.cache
-          });
-        }
       })
       .finally(() => {
         runningQueryCache.delete(key);
         keepAliveTimeoutCache.set(
           key,
           setTimeout(() => {
-            deleteDataCacheRecord({ options, key });
+            deleteDataCacheRecord({ options, key, HookPayload });
           }, options.ttl)
         );
       });
   }
-}
-
-async function remapDependencyKeys(dependencyKeys: any, result: unknown) {
-  if (typeof dependencyKeys === 'function') {
-    dependencyKeys = dependencyKeys(result);
-    if (dependencyKeys instanceof Promise) {
-      dependencyKeys = await dependencyKeys;
-    }
-  }
-
-  if (Array.isArray(dependencyKeys)) {
-    dependencyKeys = dependencyKeys.map((key) => {
-      return typeof key === 'number' ? key.toString() : key;
-    });
-  }
-
-  if (typeof dependencyKeys === 'number') {
-    dependencyKeys = [dependencyKeys.toString()];
-  }
-
-  if (typeof dependencyKeys === 'string') {
-    dependencyKeys = [dependencyKeys];
-  }
-  return dependencyKeys;
 }
 
 function getExceedingAmount({
@@ -296,9 +286,18 @@ export async function letsCandidate({
   args: any[];
   originalMethod: (...args: any[]) => Promise<unknown>;
 }) {
+  const HookPayload = {
+    options: { ...options, plugins: undefined },
+    key,
+    keepAliveTimeoutCache,
+    runningQueryCache,
+    timeframeCache,
+    fnArgs: args
+  };
+  await ExecuteHook(Hooks.INIT, options.plugins, HookPayload);
   // Check if result exists in dataCache
-  const cachedData = await getDataCacheRecord({ options, key });
-  if (typeof cachedData !== 'undefined') {
+  const cachedData = await getDataCacheRecord({ options, key, HookPayload });
+  if (cachedData !== DataCacheRecordNotFound) {
     if (options.keepAlive) {
       refreshKeepAliveRecord({
         keepAliveTimeoutCache,
@@ -306,6 +305,12 @@ export async function letsCandidate({
         options
       });
     }
+
+    await ExecuteHook(Hooks.CACHE_HIT, options.plugins, {
+      ...HookPayload,
+      result: cachedData
+    });
+    options.events.onCacheHit({ key });
     return Promise.resolve(cachedData);
   }
 
@@ -315,15 +320,28 @@ export async function letsCandidate({
     key,
     runningQueryCache
   });
-  if (typeof runningQuery !== 'undefined') return runningQuery;
+
+  if (runningQuery !== RunningQueryRecordNotFound) {
+    await ExecuteHook(Hooks.CACHE_HIT, options.plugins, {
+      ...HookPayload,
+      result: runningQuery
+    });
+    options.events.onCacheHit({ key });
+    return runningQuery;
+  }
 
   // Check the timeframeCache and delete every element that has passed the time frame.
   expireTimeFrameCacheRecords({ options, key, timeframeCache });
 
   // Execute the function
+  await ExecuteHook(Hooks.EXECUTION_PRE, options.plugins, HookPayload);
   options.events.onBeforeFunctionExecution({ key });
   const executionStart = Date.now();
   const execution = originalMethod(...args);
+  await ExecuteHook(Hooks.EXECUTION_POST, options.plugins, {
+    ...HookPayload,
+    result: execution
+  });
   // If execution is not a promise, handle the result and return it.
   if (!(execution instanceof Promise)) {
     handleResult({
@@ -334,7 +352,8 @@ export async function letsCandidate({
       options,
       timeframeCache,
       keepAliveTimeoutCache,
-      args
+      args,
+      HookPayload
     });
     return execution;
   }
@@ -349,7 +368,8 @@ export async function letsCandidate({
       options,
       timeframeCache,
       keepAliveTimeoutCache,
-      args
+      args,
+      HookPayload
     })
   );
 
