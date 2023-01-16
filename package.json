@@ -19,6 +19,7 @@
     "ts-types": " tsc --emitDeclarationOnly --outDir dist",
     "check": "npm run prettier && npm run lint && npm test",
     "build": "npm run check && rimraf dist && NODE_ENV=production node esbuild.js && npm run ts-types",
+    "build-doctor-bubbleproof": "rimraf dist && NODE_ENV=development node esbuild.js && npx clinic bubbleproof -- node ./doctor-patient.js",
     "demo-test": "for file in demo/*.js; do node $file; done",
     "prettier": "prettier --write ./src",
     "lint": "eslint ./src --ext .ts",
