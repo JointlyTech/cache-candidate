@@ -1,3 +1,9 @@
+#### 1.0.2 (2023-01-16)
+
+##### Chores
+
+*  linting ([c1f132b8](https://github.com/JointlyTech/cache-candidate/commit/c1f132b8a5da8e502bc4ed95e2dec1ad3ca2d989))
+
 #### 1.0.1 (2023-01-16)
 
 ##### Chores
