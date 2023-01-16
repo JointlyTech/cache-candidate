@@ -10,11 +10,6 @@ export class MockClass {
   ) {}
 
   @CacheCandidate(options)
-  async mockAsyncFunction(step: number) {
-    return step;
-  }
-
-  @CacheCandidate(options)
   mockFunction(step: number) {
     return step;
   }
