@@ -1,3 +1,19 @@
+## 1.0.0 (2023-01-16)
+
+##### Chores
+
+*  removed unused test class method ([7c4d8144](https://github.com/JointlyTech/cache-candidate/commit/7c4d81444b94df4dcd669c16042131f38d5843a6))
+*  removed unused command ([6e6723c3](https://github.com/JointlyTech/cache-candidate/commit/6e6723c3b1a10d9cce8f8e1d1441e840bba8b89a))
+*  removed plugin missing files export ([204a8794](https://github.com/JointlyTech/cache-candidate/commit/204a8794874ef1b76de30598f60225c3196c9d44))
+*  keepAliveTimeoutCache changed to timeFrameTimeoutCache ([#14](https://github.com/JointlyTech/cache-candidate/pull/14)) ([821ffe83](https://github.com/JointlyTech/cache-candidate/commit/821ffe8340c306f94e9c54c2b7de74c05c42143b))
+*  internal refactor + better typings ([74fdf262](https://github.com/JointlyTech/cache-candidate/commit/74fdf2627a8105329ceaf02cb662c1b692cca34d))
+
+##### New Features
+
+*  better timeouts (unref) ([#13](https://github.com/JointlyTech/cache-candidate/pull/13)) ([9a57d94a](https://github.com/JointlyTech/cache-candidate/commit/9a57d94a7739ee2202de508a908dd603be18b962))
+*  plugins system ([#12](https://github.com/JointlyTech/cache-candidate/pull/12)) ([3c5be8af](https://github.com/JointlyTech/cache-candidate/commit/3c5be8aff97b5404f3769dad178db68a2ab92878))
+*  added doctor + test script ([#2](https://github.com/JointlyTech/cache-candidate/pull/2)) ([190ca89e](https://github.com/JointlyTech/cache-candidate/commit/190ca89ec0bdc6a57c019d08a0738f26da84a789))
+
 ### 0.2.0 (2022-12-27)
 
 ##### Chores
