@@ -102,13 +102,21 @@ async function addDataCacheRecord({ options, key, result }) {
 }
 
 async function deleteDataCacheRecord({ options, key, HookPayload }) {
-  ExecuteHook(Hooks.DATACACHE_RECORD_DELETE_PRE, options.plugins, HookPayload);
+  await ExecuteHook(
+    Hooks.DATACACHE_RECORD_DELETE_PRE,
+    options.plugins,
+    HookPayload
+  );
   await options.cache.delete(key);
-  ExecuteHook(Hooks.DATACACHE_RECORD_DELETE_POST, options.plugins, HookPayload);
+  await ExecuteHook(
+    Hooks.DATACACHE_RECORD_DELETE_POST,
+    options.plugins,
+    HookPayload
+  );
   options.events.onCacheDelete({ key });
 }
 
-function handleResult({
+async function handleResult({
   result,
   runningQueryCache,
   key,
@@ -128,7 +136,7 @@ function handleResult({
   keepAliveTimeoutCache: KeepAliveCache;
   args: any[];
   HookPayload: PluginPayload;
-}): any {
+}): Promise<void> {
   const executionEnd = Date.now();
   const executionTime = executionEnd - executionStart;
   options.events.onAfterFunctionExecution({ key, executionTime });
@@ -150,10 +158,14 @@ function handleResult({
   });
 
   if (exceedingAmount >= options.requestsThreshold) {
-    ExecuteHook(Hooks.DATACACHE_RECORD_ADD_PRE, options.plugins, HookPayload);
+    await ExecuteHook(
+      Hooks.DATACACHE_RECORD_ADD_PRE,
+      options.plugins,
+      HookPayload
+    );
     addDataCacheRecord({ options, key, result })
       .then(async () => {
-        ExecuteHook(Hooks.DATACACHE_RECORD_ADD_POST, options.plugins, {
+        await ExecuteHook(Hooks.DATACACHE_RECORD_ADD_POST, options.plugins, {
           ...HookPayload,
           result
         });
@@ -282,7 +294,7 @@ export async function letsCandidate({
     timeframeCache,
     fnArgs: args
   };
-  ExecuteHook(Hooks.INIT, options.plugins, HookPayload);
+  await ExecuteHook(Hooks.INIT, options.plugins, HookPayload);
   // Check if result exists in dataCache
   const cachedData = await getDataCacheRecord({ options, key, HookPayload });
   if (cachedData !== DataCacheRecordNotFound) {
@@ -294,7 +306,7 @@ export async function letsCandidate({
       });
     }
 
-    ExecuteHook(Hooks.CACHE_HIT, options.plugins, {
+    await ExecuteHook(Hooks.CACHE_HIT, options.plugins, {
       ...HookPayload,
       result: cachedData
     });
@@ -310,7 +322,7 @@ export async function letsCandidate({
   });
 
   if (runningQuery !== RunningQueryRecordNotFound) {
-    ExecuteHook(Hooks.CACHE_HIT, options.plugins, {
+    await ExecuteHook(Hooks.CACHE_HIT, options.plugins, {
       ...HookPayload,
       result: runningQuery
     });
@@ -322,11 +334,11 @@ export async function letsCandidate({
   expireTimeFrameCacheRecords({ options, key, timeframeCache });
 
   // Execute the function
-  ExecuteHook(Hooks.EXECUTION_PRE, options.plugins, HookPayload);
+  await ExecuteHook(Hooks.EXECUTION_PRE, options.plugins, HookPayload);
   options.events.onBeforeFunctionExecution({ key });
   const executionStart = Date.now();
   const execution = originalMethod(...args);
-  ExecuteHook(Hooks.EXECUTION_POST, options.plugins, {
+  await ExecuteHook(Hooks.EXECUTION_POST, options.plugins, {
     ...HookPayload,
     result: execution
   });

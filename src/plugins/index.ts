@@ -1,21 +1,41 @@
 import { hook } from 'hook-fn';
 import {
+  ActionableHook,
   CacheCandidatePluginWithAdditionalParameters,
   Hooks,
   PluginPayload
 } from './models';
 
-export function ExecuteHook(
+export async function ExecuteHook(
   hook: Hooks,
   plugins: Array<CacheCandidatePluginWithAdditionalParameters> = [],
   payload: PluginPayload
 ) {
   for (const plugin of plugins) {
-    const actionableHook = plugin.hooks.find((h) => h.hook === hook);
-    if (actionableHook) {
-      actionableHook.action(payload, plugin.additionalParameters);
+    const instanceHooks = plugin.hooks.filter((h) => h.hook === hook);
+    if (instanceHooks.length > 1) {
+      throw new Error(
+        `Only one hook instance per plugin is allowed. ${plugin.name} has ${instanceHooks.length} instances of ${hook}}`
+      );
+    }
+    if (instanceHooks.length === 0) {
+      continue;
+    }
+    const instanceHook = instanceHooks[0];
+    if (isActionable(instanceHook)) {
+      await instanceHook.action(payload, plugin.additionalParameters);
+    } else {
+      throw new Error(
+        `Hook ${hook} for plugin ${plugin.name} is not actionable.`
+      );
     }
   }
+}
+
+function isActionable(hook: ActionableHook) {
+  return [hook.action !== undefined, typeof hook.action === 'function'].every(
+    (i) => i === true
+  );
 }
 
 export function pluginHookWrap(
