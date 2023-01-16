@@ -7,7 +7,7 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
     timeframeCache,
     runningQueryCache,
     uniqueIdentifier,
-    keepAliveTimeoutCache,
+    timeFrameTimeoutCache,
     options
   } = getInitialState(_options);
 
@@ -32,7 +32,7 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
       return letsCandidate({
         options,
         key: dataCacheKey,
-        keepAliveTimeoutCache,
+        timeFrameTimeoutCache,
         runningQueryCache,
         timeframeCache,
         args,
@@ -50,7 +50,7 @@ export function cacheCandidate(
     timeframeCache,
     runningQueryCache,
     uniqueIdentifier,
-    keepAliveTimeoutCache,
+    timeFrameTimeoutCache,
     options
   } = getInitialState(_options);
 
@@ -58,7 +58,7 @@ export function cacheCandidate(
     letsCandidate({
       options,
       key: getDataCacheKey([uniqueIdentifier, JSON.stringify(args)]),
-      keepAliveTimeoutCache,
+      timeFrameTimeoutCache,
       runningQueryCache,
       timeframeCache,
       args,
