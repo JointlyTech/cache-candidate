@@ -1,10 +1,10 @@
-import { hook } from 'hook-fn';
 import {
   ActionableHook,
   CacheCandidatePluginWithAdditionalParameters,
   Hooks,
   PluginPayload
-} from './models';
+} from '@jointly/cache-candidate-plugin-base';
+import { hook } from 'hook-fn';
 
 export async function ExecuteHook(
   hook: Hooks,
