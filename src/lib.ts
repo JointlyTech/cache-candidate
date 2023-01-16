@@ -22,7 +22,6 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
       // A uniqid generated for each instance of the class. It uses the instance properties to generate the id. (JSON.stringify)
       const instanceIdentifier = target.constructor.name + JSON.stringify(this);
       const dataCacheKey = getDataCacheKey([
-        target.constructor.name,
         propertyKey,
         uniqueIdentifier,
         instanceIdentifier,

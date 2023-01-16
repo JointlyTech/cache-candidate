@@ -50,7 +50,6 @@ function getRunningQueryRecord({
   runningQueryCache
 }): unknown | undefined {
   if (runningQueryCache.has(key)) {
-    options.events.onLog({ key, event: Events.RUNNING_QUERY });
     return runningQueryCache.get(key);
   }
   return RunningQueryRecordNotFound;
@@ -195,7 +194,6 @@ function getExceedingAmount({
 
   if (options.candidateFunction) {
     // If there's a candidateFunction, execute it for every element in the timeframeCache and return the amount of true values.
-    options.events.onLog({ key, event: Events.CHECKING_CANDIDATE_FUNCTION });
     exceedingAmount = getExceedingAmountFromCandidateFunction(
       options,
       executionTime,
@@ -204,7 +202,6 @@ function getExceedingAmount({
     );
   } else if (options.millisecondThreshold) {
     // If there's an millisecondThreshold, check if the execution time is above the threshold.
-    options.events.onLog({ key, event: Events.CHECKING_MILLISECOND_THRESHOLD });
     exceedingAmount = getExceedingAmountFromMillisecondThreshold(
       executionTime,
       options,
@@ -212,7 +209,6 @@ function getExceedingAmount({
     );
   } else {
     // If there's no candidateFunction nor millisecondThreshold, check if the number of times in the timeframeCache is above the threshold.
-    options.events.onLog({ key, event: Events.CHECKING_REQUESTS_THRESHOLD });
     exceedingAmount = timeFrameCacheRecords.length;
   }
   return exceedingAmount;

@@ -23,9 +23,6 @@ export const CacheCandidateOptionsDefault: CacheCandidateOptions = {
     },
     onAfterFunctionExecution: (_) => {
       return _;
-    },
-    onLog: (_) => {
-      return _;
     }
   }
 };

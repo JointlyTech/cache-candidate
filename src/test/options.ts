@@ -17,8 +17,7 @@ export const eventHits = new Map([
   ['onCacheSet', 0],
   ['onCacheDelete', 0],
   ['onBeforeFunctionExecution', 0],
-  ['onAfterFunctionExecution', 0],
-  ['onLog', 0]
+  ['onAfterFunctionExecution', 0]
 ]);
 
 export const options: Partial<CacheCandidateOptions> = {
@@ -49,10 +48,6 @@ export const options: Partial<CacheCandidateOptions> = {
         'onAfterFunctionExecution',
         (eventHits.get('onAfterFunctionExecution') || 0) + 1
       );
-      return _;
-    },
-    onLog: (_) => {
-      eventHits.set('onLog', (eventHits.get('onLog') || 0) + 1);
       return _;
     }
   }

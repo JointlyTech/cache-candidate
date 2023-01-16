@@ -32,7 +32,6 @@ export interface CacheCandidateOptions {
       key: string;
       executionTime: number;
     }) => void;
-    onLog: ({ key, event }: { key: string; event: Events }) => void;
   };
   plugins?: Array<CacheCandidatePluginWithAdditionalParameters>;
 }
@@ -50,13 +49,6 @@ export interface TimeFrameCacheRecord {
 export type TimeFrameCache = Map<string, Array<TimeFrameCacheRecord>>;
 export type RunningQueryCache = Map<string, Promise<any>>;
 export type TimeFrameTimeoutCache = Map<string, NodeJS.Timeout>;
-
-export enum Events {
-  RUNNING_QUERY = 'RUNNING_QUERY',
-  CHECKING_CANDIDATE_FUNCTION = 'CHECKING_CANDIDATE_FUNCTION',
-  CHECKING_MILLISECOND_THRESHOLD = 'CHECKING_MILLISECOND_THRESHOLD',
-  CHECKING_REQUESTS_THRESHOLD = 'CHECKING_REQUESTS_THRESHOLD'
-}
 
 export const DataCacheRecordNotFound = Symbol('DataCacheRecordNotFound');
 export const RunningQueryRecordNotFound = Symbol('RunningQueryRecordNotFound');

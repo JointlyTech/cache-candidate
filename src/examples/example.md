@@ -30,9 +30,6 @@ class MockClass {
       onAfterFunctionExecution: (key) => {
         return;
       },
-      onLog: (log) => {
-        return;
-      }
     }
   })
   mockFunction() {
