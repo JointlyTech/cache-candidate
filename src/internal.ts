@@ -177,7 +177,7 @@ async function handleResult({
           key,
           setTimeout(() => {
             deleteDataCacheRecord({ options, key, HookPayload });
-          }, options.ttl)
+          }, options.ttl).unref()
         );
       });
   }
@@ -259,7 +259,7 @@ function refreshKeepAliveRecord({
     key,
     setTimeout(() => {
       options.cache.delete(key);
-    }, options.ttl)
+    }, options.ttl).unref()
   );
 }
 
