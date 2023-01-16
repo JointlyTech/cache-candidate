@@ -1,4 +1,4 @@
-import { CacheCandidatePluginWithAdditionalParameters } from './plugins/models';
+import { CacheCandidatePluginWithAdditionalParameters } from '@jointly/cache-candidate-plugin-base';
 
 export interface CandidateFunctionOptions {
   timeFrameCacheRecords: Array<TimeFrameCacheRecord>;

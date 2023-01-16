@@ -10,7 +10,7 @@ import {
   TimeFrameCache
 } from './models';
 import { ExecuteHook } from './plugins';
-import { Hooks, PluginPayload } from './plugins/models';
+import { Hooks, PluginPayload } from '@jointly/cache-candidate-plugin-base';
 
 function isTimeFrameCacheRecordExpired(executionEnd: any, options: any) {
   return Date.now() < executionEnd + options.timeFrame;

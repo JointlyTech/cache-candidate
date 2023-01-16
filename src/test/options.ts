@@ -1,6 +1,4 @@
-import { cacheCandidateDependencyManager } from '../plugins/poc/manager';
 import { CacheCandidateOptions } from '../models';
-import { PluginDependencyKeys } from '../plugins/poc/dependency-keys';
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 export const TTL = 100;
@@ -64,20 +62,4 @@ export function flushMaps() {
   for (const [key] of eventHits) {
     eventHits.set(key, 0);
   }
-  cacheCandidateDependencyManager.instances.clear();
-}
-
-export function pluginsOptions(
-  dependencyKeys: any = (result: number) => result
-) {
-  return {
-    plugins: [
-      {
-        ...PluginDependencyKeys,
-        ...{
-          additionalParameters: { dependencyKeys }
-        }
-      }
-    ]
-  };
 }
