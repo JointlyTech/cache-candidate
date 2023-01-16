@@ -163,7 +163,7 @@ function handleResult({
           key,
           setTimeout(() => {
             deleteDataCacheRecord({ options, key });
-          }, options.ttl)
+          }, options.ttl).unref()
         );
       });
   }
@@ -268,8 +268,8 @@ function refreshKeepAliveRecord({
   keepAliveTimeoutCache.set(
     key,
     setTimeout(() => {
-      options.cache.delete(key);
-    }, options.ttl)
+      deleteDataCacheRecord({ options, key });
+    }, options.ttl).unref()
   );
 }
 
