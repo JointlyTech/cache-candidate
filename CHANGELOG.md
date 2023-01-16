@@ -1,3 +1,13 @@
+#### 1.0.1 (2023-01-16)
+
+##### Chores
+
+*  removed onLog because useless as it is, removed duplicated target constructor name ([08060bd2](https://github.com/JointlyTech/cache-candidate/commit/08060bd221d4d60c13e894ecba7e826ed3e0b576))
+
+##### Documentation Changes
+
+*  better documentation ([0b74f13c](https://github.com/JointlyTech/cache-candidate/commit/0b74f13c0a70c4a14905b952311191cbfba7de64))
+
 ## 1.0.0 (2023-01-16)
 
 ##### Chores
