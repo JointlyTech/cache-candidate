@@ -35,17 +35,6 @@ export interface CacheCandidateOptions {
     onLog: ({ key, event }: { key: string; event: Events }) => void;
   };
   plugins?: Array<CacheCandidatePluginWithAdditionalParameters>;
-  dependencyKeys?:
-    | string
-    | number
-    | Array<string | number>
-    | ((
-        result: DataCacheRecord['result']
-      ) =>
-        | string
-        | number
-        | Array<string | number>
-        | Promise<Array<string> | Array<number>>);
 }
 
 export interface DataCacheRecord {
