@@ -289,7 +289,7 @@ export async function letsCandidate({
   const HookPayload = {
     options: { ...options, plugins: undefined },
     key,
-    keepAliveTimeoutCache,
+    timeFrameTimeoutCache,
     runningQueryCache,
     timeframeCache,
     fnArgs: args
