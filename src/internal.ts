@@ -3,7 +3,6 @@ import { CacheCandidateOptionsDefault } from './default';
 import {
   CacheCandidateOptions,
   DataCacheRecordNotFound,
-  Events,
   TimeFrameTimeoutCache,
   RunningQueryCache,
   RunningQueryRecordNotFound,
@@ -45,7 +44,6 @@ function expireTimeFrameCacheRecords({ options, key, timeframeCache }) {
 }
 
 function getRunningQueryRecord({
-  options,
   key,
   runningQueryCache
 }): unknown | undefined {
@@ -312,7 +310,6 @@ export async function letsCandidate({
 
   // Check if Promise exists in runningQueryCache
   const runningQuery = getRunningQueryRecord({
-    options,
     key,
     runningQueryCache
   });
