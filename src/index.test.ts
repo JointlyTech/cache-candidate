@@ -340,6 +340,55 @@ describe('Plugins', () => {
     await expect(wrappedMockFn(1)).rejects.toThrow();
   });
 
+  it('should throw if hook name is not valid', async () => {
+    const myPlugin: CacheCandidatePlugin = {
+      name: 'myPlugin',
+      hooks: [
+        {
+          hook: 'invalidHook' as any,
+          action: async ({ key }) => {
+            // do nothing
+          }
+        }
+      ]
+    };
+
+    const mockFn = (step: number) =>
+      new Promise((resolve) => {
+        resolve(step);
+      });
+
+    try {
+      cacheCandidate(mockFn, {
+        plugins: [myPlugin]
+      });
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(true).toBe(true);
+    }
+  });
+
+  it('should throw if plugin has no hooks', async () => {
+    const myPlugin: CacheCandidatePlugin = {
+      name: 'myPlugin',
+      hooks: []
+    };
+
+    const mockFn = (step: number) =>
+      new Promise((resolve) => {
+        resolve(step);
+      });
+
+    try {
+      cacheCandidate(mockFn, {
+        plugins: [myPlugin]
+      });
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(true).toBe(true);
+    }
+  });
+
   it('should create a stub plugin and use it', async () => {
     let counter = 0;
     const myPlugin: CacheCandidatePlugin = {
