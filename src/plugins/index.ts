@@ -42,14 +42,15 @@ function isActionable(hook: ActionableHook) {
 export function pluginHookWrap(
   HookBefore: Hooks,
   HookAfter: Hooks,
+  options: CacheCandidateOptions,
   payload: PluginPayload
 ) {
   return hook({
-    before: ({ args }) => {
-      ExecuteHook(HookBefore, args[0].plugins, payload);
+    before: () => {
+      ExecuteHook(HookBefore, options.plugins, payload);
     },
-    after: ({ args, result }) => {
-      ExecuteHook(HookAfter, args[0].plugins, { ...payload, result });
+    after: ({ result }) => {
+      ExecuteHook(HookAfter, options.plugins, { ...payload, result });
     }
   });
 }

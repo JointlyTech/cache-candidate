@@ -111,6 +111,7 @@ async function deleteDataCacheRecord({
     pluginHookWrap(
       Hooks.DATACACHE_RECORD_DELETE_PRE,
       Hooks.DATACACHE_RECORD_DELETE_POST,
+      options,
       HookPayload
     )(options.cache.delete)(key) as Promise<void>
   ).then(() => {
