@@ -1,3 +1,26 @@
+### 1.1.0 (2023-01-17)
+
+##### Chores
+
+*  used pluginHookWrap instead of two execute hooks for better readability ([8eb60025](https://github.com/JointlyTech/cache-candidate/commit/8eb600255c5596d17a55f656470ec5d1549d6628))
+*  updating dependencies ([07991f53](https://github.com/JointlyTech/cache-candidate/commit/07991f53a41c615eb88846f18bb721e3d91ab472))
+
+##### Documentation Changes
+
+*  better documentation - in line with new updates ([6989ba66](https://github.com/JointlyTech/cache-candidate/commit/6989ba66f5a3ba3fcadba70b6da3def9c33107e9))
+
+##### New Features
+
+*  added plugin hooks check ([2fe65458](https://github.com/JointlyTech/cache-candidate/commit/2fe654580c161faf19ae51d1c3b3182f441ef023))
+
+##### Bug Fixes
+
+*  checking ttl instead of timeframe for datacacherecord expiration + running query delete if not cached ([f5d79279](https://github.com/JointlyTech/cache-candidate/commit/f5d79279092111a8b2f6076425f9daa4b4780250))
+
+##### Tests
+
+*  reached 100% coverage ([0edca232](https://github.com/JointlyTech/cache-candidate/commit/0edca232d81cc6c20a51b47bdeba53f031f301a2))
+
 #### 1.0.2 (2023-01-16)
 
 ##### Chores
