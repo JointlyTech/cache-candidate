@@ -1,6 +1,7 @@
 import { getDataCacheKey, letsCandidate, getInitialState } from './internal';
 
 import { CacheCandidateOptions } from './models';
+import { checkHooks } from './plugins';
 
 export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
   const {
@@ -10,6 +11,8 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
     timeFrameTimeoutCache,
     options
   } = getInitialState(_options);
+
+  checkHooks({ options });
 
   return function (
     target: any,
@@ -52,6 +55,8 @@ export function cacheCandidate(
     timeFrameTimeoutCache,
     options
   } = getInitialState(_options);
+
+  checkHooks({ options });
 
   return async (...args: any[]) =>
     letsCandidate({

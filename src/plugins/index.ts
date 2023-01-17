@@ -5,6 +5,7 @@ import {
   PluginPayload
 } from '@jointly/cache-candidate-plugin-base';
 import { hook } from 'hook-fn';
+import { CacheCandidateOptions } from '../models';
 
 export async function ExecuteHook(
   hook: Hooks,
@@ -51,4 +52,23 @@ export function pluginHookWrap(
       ExecuteHook(HookAfter, args[0].plugins, { ...payload, result });
     }
   });
+}
+
+export function checkHooks({ options }: { options: CacheCandidateOptions }) {
+  if (options.plugins) {
+    options.plugins.forEach((plugin) => {
+      if (
+        !plugin.hooks ||
+        !Array.isArray(plugin.hooks) ||
+        plugin.hooks.length === 0
+      ) {
+        throw new Error(`Plugin ${plugin.name} has no hooks.`);
+      }
+      plugin.hooks.forEach((hook) => {
+        if (!Hooks[hook.hook]) {
+          throw new Error(`Invalid hook ${hook}`);
+        }
+      });
+    });
+  }
 }
