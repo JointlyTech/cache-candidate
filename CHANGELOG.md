@@ -1,3 +1,9 @@
+#### 1.1.3 (2023-01-17)
+
+##### Chores
+
+*  triggering npm new version - registry has fallen ([501f1f0e](https://github.com/JointlyTech/cache-candidate/commit/501f1f0e0149747eae3d1b513cd8eaa187fa2e67))
+
 #### 1.1.2 (2023-01-17)
 
 ##### Bug Fixes
