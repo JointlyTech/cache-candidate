@@ -98,13 +98,24 @@ async function addDataCacheRecord({ options, key, result }) {
   );
 }
 
-async function deleteDataCacheRecord({ options, key, HookPayload }) {
-  await pluginHookWrap(
-    Hooks.DATACACHE_RECORD_DELETE_PRE,
-    Hooks.DATACACHE_RECORD_DELETE_POST,
-    HookPayload
-  )(options.cache.delete)(key);
-  options.events.onCacheDelete({ key });
+async function deleteDataCacheRecord({
+  options,
+  key,
+  HookPayload
+}: {
+  options: CacheCandidateOptions;
+  key: string;
+  HookPayload: PluginPayload;
+}) {
+  (
+    pluginHookWrap(
+      Hooks.DATACACHE_RECORD_DELETE_PRE,
+      Hooks.DATACACHE_RECORD_DELETE_POST,
+      HookPayload
+    )(options.cache.delete)(key) as Promise<void>
+  ).then(() => {
+    options.events.onCacheDelete({ key });
+  });
 }
 
 async function handleResult({
