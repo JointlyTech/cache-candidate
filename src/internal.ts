@@ -8,7 +8,7 @@ import {
   RunningQueryRecordNotFound,
   TimeFrameCache
 } from './models';
-import { ExecuteHook } from './plugins';
+import { ExecuteHook, pluginHookWrap } from './plugins';
 import { Hooks, PluginPayload } from '@jointly/cache-candidate-plugin-base';
 
 function isTimeFrameCacheRecordExpired(executionEnd: any, options: any) {
@@ -99,17 +99,11 @@ async function addDataCacheRecord({ options, key, result }) {
 }
 
 async function deleteDataCacheRecord({ options, key, HookPayload }) {
-  await ExecuteHook(
+  await pluginHookWrap(
     Hooks.DATACACHE_RECORD_DELETE_PRE,
-    options.plugins,
-    HookPayload
-  );
-  await options.cache.delete(key);
-  await ExecuteHook(
     Hooks.DATACACHE_RECORD_DELETE_POST,
-    options.plugins,
     HookPayload
-  );
+  )(options.cache.delete)(key);
   options.events.onCacheDelete({ key });
 }
 
