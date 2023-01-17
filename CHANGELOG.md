@@ -1,3 +1,9 @@
+#### 1.1.2 (2023-01-17)
+
+##### Bug Fixes
+
+*  fixed pluginHookWrap missing options ([00f913f5](https://github.com/JointlyTech/cache-candidate/commit/00f913f576869dabd0b4eca6eb568a1fcb34bd24))
+
 #### 1.1.1 (2023-01-17)
 
 ##### Bug Fixes
