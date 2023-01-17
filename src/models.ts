@@ -50,6 +50,5 @@ export type TimeFrameCache = Map<string, Array<TimeFrameCacheRecord>>;
 export type RunningQueryCache = Map<string, Promise<any>>;
 export type TimeFrameTimeoutCache = Map<string, NodeJS.Timeout>;
 
-/* SYMBOLS */
 export const DataCacheRecordNotFound = Symbol('DataCacheRecordNotFound');
 export const RunningQueryRecordNotFound = Symbol('RunningQueryRecordNotFound');
