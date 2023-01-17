@@ -1,3 +1,9 @@
+#### 1.1.1 (2023-01-17)
+
+##### Bug Fixes
+
+*  fixed delete data cache record missing promise await ([abe7d7a3](https://github.com/JointlyTech/cache-candidate/commit/abe7d7a392919e9bd51e3d383bbcb18d9dfb014f))
+
 ### 1.1.0 (2023-01-17)
 
 ##### Chores
