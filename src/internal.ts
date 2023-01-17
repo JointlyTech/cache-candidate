@@ -65,7 +65,7 @@ function isDataCacheRecordExpired({
   birthTime: any;
   options: any;
 }) {
-  return Date.now() - birthTime >= options.timeFrame;
+  return Date.now() - birthTime >= options.ttl;
 }
 
 async function getDataCacheRecord({
@@ -177,6 +177,8 @@ async function handleResult({
           }, options.ttl).unref()
         );
       });
+  } else {
+    runningQueryCache.delete(key);
   }
 }
 
@@ -191,7 +193,7 @@ function getExceedingAmount({
   const timeFrameCacheRecords = timeframeCache.get(key);
 
   if (options.candidateFunction) {
-    // If there's a candidateFunction, execute it for every element in the timeframeCache and return the amount of true values.
+    // If there's a candidateFunction, execute it once and return the result. It will be forced to the requestsThreshold if true to make the candidate pass.
     exceedingAmount = getExceedingAmountFromCandidateFunction(
       options,
       executionTime,
