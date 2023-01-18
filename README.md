@@ -25,7 +25,7 @@ await cachedGetUsers({ name: 'John' }); // <-- This won't be cached, because the
 await cachedGetUsers({ name: 'John' }); // <-- This won't be cached, because the requestsThreshold is 3 in the last 30 seconds
 await cachedGetUsers({ name: 'John' }); // <-- This WILL be cached, because the requestsThreshold is 3 in the last 30 seconds!
 await cachedGetUsers({ name: 'Jack' }); // <-- This won't be cached, because parameters are different
-await sleep(60000); // <-- This will flush the cache because of the ttl
+await sleep(61000); // <-- This will wait enough time (ttl) for the cache record to expire
 await cachedGetUsers({ name: 'John' }); // <-- This won't be cached, because the requestsThreshold is 3 in the last 30 seconds
 ```
 ## Use-case #2: DB query - Different timeFrame
@@ -48,7 +48,7 @@ await cachedGetUsers({ name: 'John' }); // <-- This won't be cached, because the
 await cachedGetUsers({ name: 'John' }); // <-- This won't be cached, because the requestsThreshold is 3 in the last 45 seconds
 await cachedGetUsers({ name: 'John' }); // <-- This WILL be cached, because the requestsThreshold is 3 in the last 45 seconds!
 await cachedGetUsers({ name: 'Jack' }); // <-- This won't be cached, because parameters are different
-await sleep(30000); // <-- This will flush the cache because of the ttl
+await sleep(31000); // <-- This will wait enough time (ttl) for the cache record to expire
 await cachedGetUsers({ name: 'John' }); // <-- This WILL be cached, because the requestsThreshold is 3 in the last 45 seconds!
 ```
 
@@ -71,7 +71,7 @@ const cachedGetUsers = cacheCandidate(getUsers, {
 await cachedGetUsers({ name: 'John' }); // <-- This will be cached, because the candidateFunction returns true
 await cachedGetUsers({ name: 'John' }); // <-- This will return the cached value
 await cachedGetUsers({ name: 'Jack' }); // <-- This won't be cached, because the candidateFunction returns false
-await sleep(30000); // <-- This will invalidate the cache because of the ttl
+await sleep(31000); // <-- This will invalidate the cache because of the ttl
 ```
 
 # How does it work?
@@ -141,8 +141,8 @@ The conditions are, within the given `timeFrame`:
 
 - If a `candidateFunction` is provided, it returns `true` at least once.  
   The candidateFunction ignores all the other conditions.  
-- If a `millisecondsThreshold` is provided, the function execution time passed such threshold at least `requestThreshold` times.
-- If only a `requestThreshold` is provided (default), the function is called at least `requestThreshold` times.
+- If a `millisecondThreshold` is provided, the function execution time passed such threshold at least `requestsThreshold` times.
+- If only a `requestsThreshold` is provided (default), the function is called at least `requestsThreshold` times.
 
 # Other Info
 
