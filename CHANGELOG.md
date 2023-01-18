@@ -1,3 +1,9 @@
+#### 1.1.5 (2023-01-18)
+
+##### Chores
+
+*  internal plugin parameter changes to satisfy TS ([c67812f2](https://github.com/JointlyTech/cache-candidate/commit/c67812f28b6d018b1955fe079ad10943dd9edfab))
+
 #### 1.1.4 (2023-01-17)
 
 ##### Chores
