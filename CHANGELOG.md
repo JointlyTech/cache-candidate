@@ -1,3 +1,9 @@
+#### 1.1.6 (2023-01-18)
+
+##### Documentation Changes
+
+*  last edits for first release os ([7dc02816](https://github.com/JointlyTech/cache-candidate/commit/7dc0281638ab8f48de5ef3775cfead77d90b93f7))
+
 #### 1.1.5 (2023-01-18)
 
 ##### Chores
