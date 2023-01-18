@@ -9,7 +9,7 @@ import { CacheCandidateOptions } from '../models';
 
 export async function ExecuteHook(
   hook: Hooks,
-  plugins: Array<CacheCandidatePluginWithAdditionalParameters> = [],
+  plugins: Array<CacheCandidatePluginWithAdditionalParameters>,
   payload: PluginPayload
 ) {
   for (const plugin of plugins) {

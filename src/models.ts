@@ -33,7 +33,7 @@ export interface CacheCandidateOptions {
       executionTime: number;
     }) => void;
   };
-  plugins?: Array<CacheCandidatePluginWithAdditionalParameters>;
+  plugins: Array<CacheCandidatePluginWithAdditionalParameters>;
 }
 
 export interface DataCacheRecord {
