@@ -2,6 +2,14 @@
 
 This is a library providing both a higher-order function and a decorator to cache the result of a function/method if given conditions are met.
 
+# How do I install it?
+
+You can install it by using the following command:
+
+```bash
+npm install @jointly/cache-candidate
+```
+
 # Examples
 
 ## Use-case #1: DB query
