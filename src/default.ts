@@ -4,7 +4,7 @@ import { CacheCandidateOptions } from './models';
 export const CacheCandidateOptionsDefault: CacheCandidateOptions = {
   ttl: 600000,
   timeFrame: 30000,
-  requestsThreshold: 3,
+  requestsThreshold: 1,
   cache: makeAsyncMap(),
   keepAlive: false,
   plugins: [],
