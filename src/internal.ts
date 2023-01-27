@@ -3,7 +3,7 @@ import { CacheCandidateOptionsDefault } from './default';
 import {
   CacheCandidateOptions,
   DataCacheRecordNotFound,
-  TimeFrameTimeoutCache,
+  TimeoutCache,
   RunningQueryCache,
   RunningQueryRecordNotFound,
   TimeFrameCache
@@ -126,7 +126,7 @@ async function handleResult({
   executionStart,
   options,
   timeframeCache,
-  timeFrameTimeoutCache,
+  timeoutCache,
   args,
   HookPayload
 }: {
@@ -136,7 +136,7 @@ async function handleResult({
   executionStart: number;
   options: CacheCandidateOptions;
   timeframeCache: TimeFrameCache;
-  timeFrameTimeoutCache: TimeFrameTimeoutCache;
+  timeoutCache: TimeoutCache;
   args: any[];
   HookPayload: PluginPayload;
 }): Promise<void> {
@@ -176,10 +176,11 @@ async function handleResult({
       })
       .finally(() => {
         runningQueryCache.delete(key);
-        timeFrameTimeoutCache.set(
+        timeoutCache.set(
           key,
           setTimeout(() => {
             deleteDataCacheRecord({ options, key, HookPayload });
+            timeoutCache.delete(key);
           }, options.ttl).unref()
         );
       });
@@ -247,20 +248,23 @@ function getExceedingAmountFromCandidateFunction(
     exceedingAmount = options.requestsThreshold;
   return exceedingAmount;
 }
-function refreshTimeframeTimeoutCacheRecord({
-  timeFrameTimeoutCache,
+function refreshTimeoutCacheRecord({
+  timeoutCache,
   key,
-  options
+  options,
+  HookPayload
 }: {
-  timeFrameTimeoutCache: TimeFrameTimeoutCache;
+  timeoutCache: TimeoutCache;
   key: string;
   options: CacheCandidateOptions;
+  HookPayload: PluginPayload;
 }) {
-  clearTimeout(timeFrameTimeoutCache.get(key));
-  timeFrameTimeoutCache.set(
+  clearTimeout(timeoutCache.get(key));
+  timeoutCache.set(
     key,
     setTimeout(() => {
-      options.cache.delete(key);
+      deleteDataCacheRecord({ options, key, HookPayload });
+      timeoutCache.delete(key);
     }, options.ttl).unref()
   );
 }
@@ -274,7 +278,7 @@ export function uniqid(length = 10) {
 export async function letsCandidate({
   options,
   key,
-  timeFrameTimeoutCache,
+  timeoutCache,
   runningQueryCache,
   timeframeCache,
   args,
@@ -282,7 +286,7 @@ export async function letsCandidate({
 }: {
   options: CacheCandidateOptions;
   key: string;
-  timeFrameTimeoutCache: TimeFrameTimeoutCache;
+  timeoutCache: TimeoutCache;
   runningQueryCache: RunningQueryCache;
   timeframeCache: TimeFrameCache;
   args: any[];
@@ -291,7 +295,7 @@ export async function letsCandidate({
   const HookPayload = {
     options: { ...options, plugins: undefined },
     key,
-    timeFrameTimeoutCache,
+    timeoutCache,
     runningQueryCache,
     timeframeCache,
     fnArgs: args
@@ -301,10 +305,11 @@ export async function letsCandidate({
   const cachedData = await getDataCacheRecord({ options, key, HookPayload });
   if (cachedData !== DataCacheRecordNotFound) {
     if (options.keepAlive) {
-      refreshTimeframeTimeoutCacheRecord({
-        timeFrameTimeoutCache,
+      refreshTimeoutCacheRecord({
+        timeoutCache,
         key,
-        options
+        options,
+        HookPayload
       });
     }
 
@@ -327,7 +332,6 @@ export async function letsCandidate({
       ...HookPayload,
       result: runningQuery
     });
-    options.events.onCacheHit({ key });
     return runningQuery;
   }
 
@@ -352,7 +356,7 @@ export async function letsCandidate({
       executionStart,
       options,
       timeframeCache,
-      timeFrameTimeoutCache,
+      timeoutCache,
       args,
       HookPayload
     });
@@ -368,7 +372,7 @@ export async function letsCandidate({
       executionStart,
       options,
       timeframeCache,
-      timeFrameTimeoutCache,
+      timeoutCache,
       args,
       HookPayload
     })
@@ -387,7 +391,7 @@ export function getInitialState(_options: Partial<CacheCandidateOptions>) {
   // Generate a uniqid
   const uniqueIdentifier = uniqid();
 
-  const timeFrameTimeoutCache: TimeFrameTimeoutCache = new Map();
+  const timeoutCache: TimeoutCache = new Map();
 
   const options: CacheCandidateOptions = {
     ...CacheCandidateOptionsDefault,
@@ -398,7 +402,7 @@ export function getInitialState(_options: Partial<CacheCandidateOptions>) {
     timeframeCache,
     runningQueryCache,
     uniqueIdentifier,
-    timeFrameTimeoutCache,
+    timeoutCache,
     options
   };
 }
