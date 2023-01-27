@@ -1,3 +1,15 @@
+### 1.2.0 (2023-01-27)
+
+##### Chores
+
+*  terminated refactoring ([15e0733b](https://github.com/JointlyTech/cache-candidate/commit/15e0733baae1cb8cc1e443bd4ecbd671f5813849))
+*  updated plugin base ([4feac575](https://github.com/JointlyTech/cache-candidate/commit/4feac575ac551449fa49d86e3f96c4639f881d3d))
+*  internal refactor + fixed missing timeoutCache deletion + changed cache delete to correct candidate func ([cfc39360](https://github.com/JointlyTech/cache-candidate/commit/cfc39360a62c1647f05b6783f8833adc1ae73da3))
+
+##### Documentation Changes
+
+*  added install section ([#18](https://github.com/JointlyTech/cache-candidate/pull/18)) ([1fabe80c](https://github.com/JointlyTech/cache-candidate/commit/1fabe80c2e16a04b41dc1592656cb960bb77ca6b))
+
 #### 1.1.6 (2023-01-18)
 
 ##### Documentation Changes
