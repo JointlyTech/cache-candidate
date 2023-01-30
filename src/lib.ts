@@ -1,7 +1,8 @@
+import { Hooks } from '@jointly/cache-candidate-plugin-base';
 import { getDataCacheKey, letsCandidate, getInitialState } from './internal';
 
 import { CacheCandidateOptions } from './models';
-import { checkHooks } from './plugins';
+import { checkHooks, ExecuteHook } from './plugins';
 
 export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
   const {
@@ -13,6 +14,15 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
   } = getInitialState(_options);
 
   checkHooks({ options });
+
+  ExecuteHook(Hooks.SETUP, options.plugins, {
+    options: { ...options, plugins: undefined },
+    key: '',
+    timeoutCache,
+    runningQueryCache,
+    timeframeCache,
+    fnArgs: []
+  });
 
   return function (
     target: any,
@@ -57,6 +67,15 @@ export function cacheCandidate(
   } = getInitialState(_options);
 
   checkHooks({ options });
+
+  ExecuteHook(Hooks.SETUP, options.plugins, {
+    options: { ...options, plugins: undefined },
+    key: '',
+    timeoutCache,
+    runningQueryCache,
+    timeframeCache,
+    fnArgs: []
+  });
 
   return async (...args: any[]) =>
     letsCandidate({
