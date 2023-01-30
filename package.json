@@ -34,7 +34,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.3.0",
     "@commitlint/config-conventional": "^17.3.0",
-    "@jointly/cache-candidate-plugin-base": "^1.0.0",
+    "@jointly/cache-candidate-plugin-base": "^1.2.2",
     "@types/jest": "^29.2.5",
     "@types/node": "^18.11.12",
     "@types/redis": "^4.0.11",

@@ -1,5 +1,14 @@
 import { Hooks } from '@jointly/cache-candidate-plugin-base';
-import { getDataCacheKey, letsCandidate, getInitialState } from './internal';
+import {
+  getDataCacheKey,
+  letsCandidate,
+  getInitialState,
+  getDataCacheRecord,
+  addDataCacheRecord,
+  deleteDataCacheRecord,
+  isDataCacheRecordExpired,
+  getExceedingAmount
+} from './internal';
 
 import { CacheCandidateOptions } from './models';
 import { checkHooks, ExecuteHook } from './plugins';
@@ -21,7 +30,15 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
     timeoutCache,
     runningQueryCache,
     timeframeCache,
-    fnArgs: []
+    fnArgs: [],
+    internals: {
+      getDataCacheRecord,
+      addDataCacheRecord,
+      deleteDataCacheRecord,
+      isDataCacheRecordExpired,
+      getDataCacheKey,
+      getExceedingAmount
+    }
   });
 
   return function (
@@ -74,7 +91,15 @@ export function cacheCandidate(
     timeoutCache,
     runningQueryCache,
     timeframeCache,
-    fnArgs: []
+    fnArgs: [],
+    internals: {
+      getDataCacheRecord,
+      addDataCacheRecord,
+      deleteDataCacheRecord,
+      isDataCacheRecordExpired,
+      getDataCacheKey,
+      getExceedingAmount
+    }
   });
 
   return async (...args: any[]) =>
