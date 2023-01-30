@@ -1,3 +1,9 @@
+#### 1.4.1 (2023-01-30)
+
+##### New Features
+
+*  reverting internals ([b9816e08](https://github.com/JointlyTech/cache-candidate/commit/b9816e080df67206ecda09342dc43e15f049c69d))
+
 ### 1.4.0 (2023-01-30)
 
 ##### Chores
