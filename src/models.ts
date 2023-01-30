@@ -10,6 +10,7 @@ export interface CacheCandidateCacheAdapter {
   set: (key: string, value: any, ttl: number) => Promise<any>;
   has: (key: string) => Promise<boolean>;
   delete: (key: string) => Promise<boolean>;
+  [key: string]: any;
 }
 
 export interface CacheCandidateOptions {
