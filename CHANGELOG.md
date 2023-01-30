@@ -1,3 +1,13 @@
+### 1.4.0 (2023-01-30)
+
+##### Chores
+
+*  updating package lock ([077d8f3d](https://github.com/JointlyTech/cache-candidate/commit/077d8f3d27b1f0298d8dc42264c7bd14dbf47cd8))
+
+##### New Features
+
+*  exposing internals ([#32](https://github.com/JointlyTech/cache-candidate/pull/32)) ([0bbeb7dc](https://github.com/JointlyTech/cache-candidate/commit/0bbeb7dcb432bd1b3e1a8030fae5ddea38c3b6c3))
+
 ### 1.3.0 (2023-01-30)
 
 ##### New Features
