@@ -58,7 +58,7 @@ export function getDataCacheKey(...args: any[]) {
   return createHash('sha256').update(args.join('|')).digest('hex');
 }
 
-function isDataCacheRecordExpired({
+export function isDataCacheRecordExpired({
   birthTime,
   options
 }: {
@@ -68,7 +68,7 @@ function isDataCacheRecordExpired({
   return Date.now() - birthTime >= options.ttl;
 }
 
-async function getDataCacheRecord({
+export async function getDataCacheRecord({
   options,
   key,
   HookPayload
@@ -87,18 +87,42 @@ async function getDataCacheRecord({
   return DataCacheRecordNotFound;
 }
 
-async function addDataCacheRecord({ options, key, result }) {
-  return options.cache.set(
-    key,
-    {
-      result,
-      birthTime: Date.now()
-    },
-    options.ttl
+export async function addDataCacheRecord({
+  options,
+  key,
+  result,
+  HookPayload
+}: {
+  options: CacheCandidateOptions;
+  key: string;
+  result: unknown;
+  HookPayload: PluginPayload;
+}) {
+  await ExecuteHook(
+    Hooks.DATACACHE_RECORD_ADD_PRE,
+    options.plugins,
+    HookPayload
   );
+
+  return options.cache
+    .set(
+      key,
+      {
+        result,
+        birthTime: Date.now()
+      },
+      options.ttl
+    )
+    .then(async () => {
+      await ExecuteHook(Hooks.DATACACHE_RECORD_ADD_POST, options.plugins, {
+        ...HookPayload,
+        result
+      });
+      options.events.onCacheSet({ key });
+    });
 }
 
-async function deleteDataCacheRecord({
+export async function deleteDataCacheRecord({
   options,
   key,
   HookPayload
@@ -161,35 +185,22 @@ async function handleResult({
   });
 
   if (exceedingAmount >= options.requestsThreshold) {
-    await ExecuteHook(
-      Hooks.DATACACHE_RECORD_ADD_PRE,
-      options.plugins,
-      HookPayload
-    );
-    addDataCacheRecord({ options, key, result })
-      .then(async () => {
-        await ExecuteHook(Hooks.DATACACHE_RECORD_ADD_POST, options.plugins, {
-          ...HookPayload,
-          result
-        });
-        options.events.onCacheSet({ key });
-      })
-      .finally(() => {
-        runningQueryCache.delete(key);
-        timeoutCache.set(
-          key,
-          setTimeout(() => {
-            deleteDataCacheRecord({ options, key, HookPayload });
-            timeoutCache.delete(key);
-          }, options.ttl).unref()
-        );
-      });
+    addDataCacheRecord({ options, key, result, HookPayload }).finally(() => {
+      runningQueryCache.delete(key);
+      timeoutCache.set(
+        key,
+        setTimeout(() => {
+          deleteDataCacheRecord({ options, key, HookPayload });
+          timeoutCache.delete(key);
+        }, options.ttl).unref()
+      );
+    });
   } else {
     runningQueryCache.delete(key);
   }
 }
 
-function getExceedingAmount({
+export function getExceedingAmount({
   options,
   key,
   timeframeCache,
@@ -298,7 +309,15 @@ export async function letsCandidate({
     timeoutCache,
     runningQueryCache,
     timeframeCache,
-    fnArgs: args
+    fnArgs: args,
+    internals: {
+      getDataCacheRecord,
+      addDataCacheRecord,
+      deleteDataCacheRecord,
+      isDataCacheRecordExpired,
+      getDataCacheKey,
+      getExceedingAmount
+    }
   };
   await ExecuteHook(Hooks.INIT, options.plugins, HookPayload);
   // Check if result exists in dataCache
