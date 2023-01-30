@@ -309,15 +309,7 @@ export async function letsCandidate({
     timeoutCache,
     runningQueryCache,
     timeframeCache,
-    fnArgs: args,
-    internals: {
-      getDataCacheRecord,
-      addDataCacheRecord,
-      deleteDataCacheRecord,
-      isDataCacheRecordExpired,
-      getDataCacheKey,
-      getExceedingAmount
-    }
+    fnArgs: args
   };
   await ExecuteHook(Hooks.INIT, options.plugins, HookPayload);
   // Check if result exists in dataCache

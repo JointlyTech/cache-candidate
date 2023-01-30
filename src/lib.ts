@@ -30,15 +30,7 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
     timeoutCache,
     runningQueryCache,
     timeframeCache,
-    fnArgs: [],
-    internals: {
-      getDataCacheRecord,
-      addDataCacheRecord,
-      deleteDataCacheRecord,
-      isDataCacheRecordExpired,
-      getDataCacheKey,
-      getExceedingAmount
-    }
+    fnArgs: []
   });
 
   return function (
@@ -91,15 +83,7 @@ export function cacheCandidate(
     timeoutCache,
     runningQueryCache,
     timeframeCache,
-    fnArgs: [],
-    internals: {
-      getDataCacheRecord,
-      addDataCacheRecord,
-      deleteDataCacheRecord,
-      isDataCacheRecordExpired,
-      getDataCacheKey,
-      getExceedingAmount
-    }
+    fnArgs: []
   });
 
   return async (...args: any[]) =>
@@ -113,3 +97,12 @@ export function cacheCandidate(
       originalMethod: fn
     });
 }
+
+export {
+  getDataCacheKey,
+  getDataCacheRecord,
+  addDataCacheRecord,
+  deleteDataCacheRecord,
+  isDataCacheRecordExpired,
+  getExceedingAmount
+};
