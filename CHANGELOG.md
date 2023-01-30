@@ -1,3 +1,10 @@
+### 1.3.0 (2023-01-30)
+
+##### New Features
+
+*  allowing other cache adapters ([#31](https://github.com/JointlyTech/cache-candidate/pull/31)) ([a8750321](https://github.com/JointlyTech/cache-candidate/commit/a8750321c226a98a53c583237f0be95de2a14e29))
+*  added setup hook ([#30](https://github.com/JointlyTech/cache-candidate/pull/30)) ([66a2206e](https://github.com/JointlyTech/cache-candidate/commit/66a2206e9e9d56ac6653f573cf6c0a7b56a219fa))
+
 ### 1.2.0 (2023-01-27)
 
 ##### Chores
