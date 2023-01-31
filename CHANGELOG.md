@@ -1,3 +1,13 @@
+### 1.5.0 (2023-01-31)
+
+##### Chores
+
+*  updating plugin-base ([1cc099b6](https://github.com/JointlyTech/cache-candidate/commit/1cc099b6bba43414dce33fc63254f650b0cf7473))
+
+##### New Features
+
+*  bringing internals back again ([3bfcd234](https://github.com/JointlyTech/cache-candidate/commit/3bfcd234c3fad9e70267328a05140603698411c5))
+
 #### 1.4.1 (2023-01-30)
 
 ##### New Features
