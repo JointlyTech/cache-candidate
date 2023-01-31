@@ -303,13 +303,23 @@ export async function letsCandidate({
   args: any[];
   originalMethod: (...args: any[]) => Promise<unknown>;
 }) {
+  // Make options.plugins freezed
+  //Object.freeze(options.plugins);
   const HookPayload = {
-    options: { ...options, plugins: undefined },
+    options,
     key,
     timeoutCache,
     runningQueryCache,
     timeframeCache,
-    fnArgs: args
+    fnArgs: args,
+    internals: {
+      getDataCacheKey,
+      getDataCacheRecord,
+      addDataCacheRecord,
+      deleteDataCacheRecord,
+      isDataCacheRecordExpired,
+      getExceedingAmount
+    }
   };
   await ExecuteHook(Hooks.INIT, options.plugins, HookPayload);
   // Check if result exists in dataCache
