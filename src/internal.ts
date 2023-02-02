@@ -176,7 +176,7 @@ async function handleResult({
     executionEnd
   });
 
-  const exceedingAmount = getExceedingAmount({
+  const exceedingAmount = await getExceedingAmount({
     options,
     key,
     timeframeCache,
@@ -200,7 +200,7 @@ async function handleResult({
   }
 }
 
-export function getExceedingAmount({
+export async function getExceedingAmount({
   options,
   key,
   timeframeCache,
@@ -212,7 +212,7 @@ export function getExceedingAmount({
 
   if (options.candidateFunction) {
     // If there's a candidateFunction, execute it once and return the result. It will be forced to the requestsThreshold if true to make the candidate pass.
-    exceedingAmount = getExceedingAmountFromCandidateFunction(
+    exceedingAmount = await getExceedingAmountFromCandidateFunction(
       options,
       executionTime,
       args,
@@ -248,14 +248,14 @@ function getExceedingAmountFromMillisecondThreshold(
   return exceedingAmount;
 }
 
-function getExceedingAmountFromCandidateFunction(
+async function getExceedingAmountFromCandidateFunction(
   options: any,
   executionTime: any,
   args: any,
   timeFrameCacheRecords: any
 ) {
   let exceedingAmount = 0;
-  if (options.candidateFunction({ timeFrameCacheRecords, options, args }))
+  if (await options.candidateFunction({ timeFrameCacheRecords, options, args }))
     exceedingAmount = options.requestsThreshold;
   return exceedingAmount;
 }
