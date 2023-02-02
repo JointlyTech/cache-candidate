@@ -71,8 +71,8 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
   };
 }
 
-export function cacheCandidate(
-  fn: (...args: any[]) => any,
+export function cacheCandidate<T extends (...args: any[]) => Promise<any>>(
+  fn: T,
   _options: Partial<CacheCandidateOptions> = {}
 ) {
   const {
@@ -102,7 +102,7 @@ export function cacheCandidate(
     }
   });
 
-  return async (...args: any[]) =>
+  return (...args: Parameters<T>): ReturnType<T> =>
     letsCandidate({
       options,
       key: getDataCacheKey([uniqueIdentifier, JSON.stringify(args)]),
@@ -111,5 +111,5 @@ export function cacheCandidate(
       timeframeCache,
       args,
       originalMethod: fn
-    });
+    }) as ReturnType<T>;
 }
