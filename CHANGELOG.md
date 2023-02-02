@@ -1,3 +1,13 @@
+#### 1.5.3 (2023-02-02)
+
+##### Continuous Integration
+
+*  added github actions ([#35](https://github.com/JointlyTech/cache-candidate/pull/35)) ([7809180b](https://github.com/JointlyTech/cache-candidate/commit/7809180bd21890cc1e93ce63d520e2aebf4ecb04))
+
+##### New Features
+
+*  returning correct function types from input function ([#36](https://github.com/JointlyTech/cache-candidate/pull/36)) ([4d013387](https://github.com/JointlyTech/cache-candidate/commit/4d013387a80d8adb0131cade933a44ff15f4572f))
+
 #### 1.5.2 (2023-02-02)
 
 #### 1.5.1 (2023-02-02)
