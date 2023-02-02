@@ -1,3 +1,9 @@
+#### 1.5.1 (2023-02-02)
+
+##### New Features
+
+*  candidate function now can be either sync or async ([#34](https://github.com/JointlyTech/cache-candidate/pull/34)) ([c2f605c2](https://github.com/JointlyTech/cache-candidate/commit/c2f605c22098fd080be7d3f92d1af5f90282e49b))
+
 ### 1.5.0 (2023-01-31)
 
 ##### Chores
