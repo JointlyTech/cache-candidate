@@ -168,7 +168,6 @@ Please, refer to the [@jointly/cache-candidate-plugin-base](https://github.com/J
 
 - The higher-order function and the decorator only work with async functions.  
   Please, refer to the [Considerations on synchronous functions](#considerations-on-synchronous-functions) section for more information.
-- The `candidateFunction` must be synchronous. If passed an async function bypassing type checking, the candidateFunction will return a Promise thus not working properly. This choice was made to avoid the overhead and the performance burden of an async function call.
 
 ## Cache Stampede
 
