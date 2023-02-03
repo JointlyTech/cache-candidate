@@ -163,6 +163,7 @@ Please, refer to the [@jointly/cache-candidate-plugin-base](https://github.com/J
 
 - [@jointly/cache-candidate-plugin-dependency-keys](https://github.com/JointlyTech/cache-candidate-plugin-dependency-keys): A plugin allowing to define dependency keys when setting the cache record.  
   This provides a mechanism to delete one or more cache records when a dependency key is invalidated.
+- [@jointly/cache-candidate-plugin-invalidate-function](https://github.com/JointlyTech/cache-candidate-plugin-invalidate-function): A plugin providing an invalidation mechanism under specific conditions.
 
 ## Constraints
 
