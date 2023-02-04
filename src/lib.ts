@@ -41,7 +41,7 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
     }
   });
 
-  return function (
+  return function cacheCandidateWrapper(
     target: any,
     propertyKey: string,
     descriptor: PropertyDescriptor
@@ -102,8 +102,8 @@ export function cacheCandidate<T extends (...args: any[]) => Promise<any>>(
     }
   });
 
-  return (...args: Parameters<T>): ReturnType<T> =>
-    letsCandidate({
+  return function cacheCandidateWrapper(...args: Parameters<T>): ReturnType<T> {
+    return letsCandidate({
       options,
       key: getDataCacheKey([uniqueIdentifier, JSON.stringify(args)]),
       timeoutCache,
@@ -112,4 +112,5 @@ export function cacheCandidate<T extends (...args: any[]) => Promise<any>>(
       args,
       originalMethod: fn
     }) as ReturnType<T>;
+  };
 }
