@@ -4,3 +4,4 @@ demo
 coverage
 .clinic
 doctor-patient.js
+benchmark.js
