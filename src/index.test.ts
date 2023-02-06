@@ -24,6 +24,15 @@ beforeEach(async () => {
 });
 
 describe('Basic Test Environment', () => {
+  it('should throw if expirationMode is \'eject\' and \'keepAlive\' is true', async () => {
+    expect(() => {
+      cacheCandidate(() => {return Promise.resolve(true);}, {
+        expirationMode: 'eject',
+        keepAlive: true
+      });
+    }).toThrow();
+  });
+
   it('should verify cache is empty', async () => {
     expect(eventHits.get('onCacheSet')).toBe(0);
     expect(eventHits.get('onCacheHit')).toBe(0);
