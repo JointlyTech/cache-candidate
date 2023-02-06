@@ -103,6 +103,11 @@ The options available are:
   - `timeFrameCacheRecords`: The cache records of the last `timeFrame` milliseconds.
 - `millisecondThreshold` (_optional_): The threshold in milliseconds to be considered for the condition checks. If not passed, this criteria will be ignored.
 - `requestsThreshold` (_optional_): The number of requests to be considered for the condition checks. Default: `3`.
+- `expirationMode` (_optional_): The expiration mode to use. Default: `default`.
+    - `default`: The cache-candidate will be responsible for generating timeouts that, when reached, will call the provided delete method of the cache adapter.  
+    - `timeout-only`: The cache-candidate will be responsible for generating timeouts that, when reached, will *not* call the provided delete method of the cache adapter. This means your cache adapter must have a mechanism to delete the cache record when the timeout is reached (Ex. Redis EX option). Plugins and events will be called as usual.  
+    - `eject`: The cache-candidate will not be responsible for generating timeouts nor calling the delete method. This means your cache adapter must have a mechanism to delete the cache record when the timeout is reached (Ex. Redis EX option). *Be aware plugins and events will not be called.*
+
 - `keepAlive` (_optional_): If `true`, the cache record will be kept alive at every request. Default: `false`.
 - `cache` (_optional_): The cache adapter to be used. Defaults to `an in-memory cache based on Maps, but with Promises`.  
   Available adapters are:
