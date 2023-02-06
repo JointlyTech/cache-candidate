@@ -44,6 +44,7 @@ export interface CacheCandidateOptions {
   candidateFunction?: (CandidateFunctionOptions) => boolean;
   millisecondThreshold?: number;
   requestsThreshold: number;
+  expirationMode: 'default' | 'timeout-only' | 'eject';
   keepAlive: boolean;
   cache: CacheCandidateCacheAdapter;
   fetchingMode: 'stale-while-revalidate' | 'default';

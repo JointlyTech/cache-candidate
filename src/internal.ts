@@ -147,16 +147,31 @@ export async function deleteDataCacheRecord({
   if (options.fetchingMode === 'stale-while-revalidate') {
     staleMap.set(key, result);
   }
+  const fnToCall = expirationOption(options.expirationMode, 'call-delete')
+    ? options.cache.delete
+    : () => Promise.resolve();
   (
     pluginHookWrap(
       Hooks.DATACACHE_RECORD_DELETE_PRE,
       Hooks.DATACACHE_RECORD_DELETE_POST,
       options,
       HookPayload
-    )(options.cache.delete)(key) as Promise<void>
+    )(fnToCall)(key) as Promise<void>
   ).then(() => {
     options.events.onCacheDelete({ key });
   });
+}
+
+function expirationOption(
+  mode: CacheCandidateOptions['expirationMode'],
+  option: 'set-timeout' | 'call-delete'
+) {
+  switch (option) {
+    case 'set-timeout':
+      return mode === 'default' || mode === 'timeout-only';
+    case 'call-delete':
+      return mode === 'default';
+  }
 }
 
 async function handleResult({
@@ -205,19 +220,22 @@ async function handleResult({
   if (exceedingAmount >= options.requestsThreshold) {
     addDataCacheRecord({ options, key, result, HookPayload }).finally(() => {
       runningQueryCache.delete(key);
-      timeoutCache.set(
-        key,
-        setTimeout(() => {
-          deleteDataCacheRecord({
-            options,
-            key,
-            HookPayload,
-            result,
-            staleMap
-          });
-          timeoutCache.delete(key);
-        }, options.ttl).unref()
-      );
+
+      if (expirationOption(options.expirationMode, 'set-timeout')) {
+        timeoutCache.set(
+          key,
+          setTimeout(() => {
+            deleteDataCacheRecord({
+              options,
+              key,
+              HookPayload,
+              result,
+              staleMap
+            });
+            timeoutCache.delete(key);
+          }, options.ttl).unref()
+        );
+      }
     });
   } else {
     runningQueryCache.delete(key);
@@ -299,6 +317,14 @@ export function uniqid(length = 10) {
     .substring(2, length + 2);
 }
 
+export function checkExpirationMode(options: CacheCandidateOptions) {
+  if (options.expirationMode === 'eject' && options.keepAlive === true) {
+    throw new Error(
+      'The cache-candidate currently doesn\'t support the "eject" expiration mode with the "keepAlive" option.'
+    );
+  }
+}
+
 // returns a partially frozen object
 function internalsFactory() {
   const internals = {
@@ -365,7 +391,10 @@ export async function letsCandidate({
     staleMap
   });
   if (cachedData !== DataCacheRecordNotFound) {
-    if (options.keepAlive) {
+    if (
+      options.keepAlive &&
+      expirationOption(options.expirationMode, 'set-timeout')
+    ) {
       refreshTimeoutCacheRecord({
         timeoutCache,
         key
