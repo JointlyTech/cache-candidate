@@ -1,3 +1,13 @@
+#### 1.5.4 (2023-02-11)
+
+##### Chores
+
+*  naming returned functions for better logging and discoverability ([#38](https://github.com/JointlyTech/cache-candidate/pull/38)) ([e53a0a75](https://github.com/JointlyTech/cache-candidate/commit/e53a0a75eac40a01776500d77c6445c8c2bf0972))
+
+##### Documentation Changes
+
+*  added @jointly/cache-candidate-plugin-invalidate-function ([#37](https://github.com/JointlyTech/cache-candidate/pull/37)) ([ff5a093b](https://github.com/JointlyTech/cache-candidate/commit/ff5a093bc3b97453c2ae038c5c564c2f8f6f3d7b))
+
 #### 1.5.3 (2023-02-02)
 
 ##### Continuous Integration
