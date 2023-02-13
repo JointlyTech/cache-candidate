@@ -270,14 +270,7 @@ function refreshTimeoutCacheRecord({
   options: CacheCandidateOptions;
   HookPayload: PluginPayload;
 }) {
-  clearTimeout(timeoutCache.get(key));
-  timeoutCache.set(
-    key,
-    setTimeout(() => {
-      deleteDataCacheRecord({ options, key, HookPayload });
-      timeoutCache.delete(key);
-    }, options.ttl).unref()
-  );
+  timeoutCache.get(key)?.refresh();
 }
 
 export function uniqid(length = 10) {
