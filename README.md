@@ -205,6 +205,25 @@ The cache key is composed based on the following criteria, allowing multiple fil
 - `instanceIdentifier`: A uniqid generated for each instance of the class. It uses the instance properties to generate the id. (JSON.stringify)
 - The arguments passed to the method. (JSON.stringify)
 
+## Benchmarks
+
+An overhead benchmark is available launching the `npm run benchmark` command.  
+The benchmark will run:
+- A simple function without cache-candidate.
+- A cache-candidate wrap of the same function of the first test with an unreachable requestsThreshold.
+- A cache-candidate wrap of the same function of the first test with a candidateFunction that always returns false.
+
+The results on a MacBook Pro M1 2021 with 16GB of RAM are:
+
+```
+cacheCandidate OFF - normalFunction x 47.48 ops/sec ±0.48% (74 runs sampled)
+cacheCandidate ON - Request Threshold unreachable x 46.86 ops/sec ±0.76% (73 runs sampled)
+cacheCandidate ON - Candidate Function set to false x 46.75 ops/sec ±0.47% (72 runs sampled)
+```
+
+The results show that the library has a very low overhead, even when the cache is not used.  
+Our suggestion therefore is to use the library on every function that could benefit from an hypothetical caching.
+
 # Contributing
 
 Please, refer to the [CONTRIBUTING.md](https://github.com/JointlyTech/cache-candidate/blob/main/CONTRIBUTING.md) file for more information.
