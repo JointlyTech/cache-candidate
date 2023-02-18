@@ -409,7 +409,11 @@ export function getInitialState(_options: Partial<CacheCandidateOptions>) {
 
   const options: CacheCandidateOptions = {
     ...CacheCandidateOptionsDefault,
-    ..._options
+    ..._options,
+    events: {
+      ...CacheCandidateOptionsDefault.events,
+      ...(_options.events || {})
+    }
   };
 
   return {
