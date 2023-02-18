@@ -1,3 +1,14 @@
+#### 1.5.5 (2023-02-18)
+
+##### Chores
+
+*  adding benchmark for worst case ([#40](https://github.com/JointlyTech/cache-candidate/pull/40)) ([b511df0a](https://github.com/JointlyTech/cache-candidate/commit/b511df0add25c1a17ffe947b2d4986d0744310f0))
+*  use timeout.refresh ([#42](https://github.com/JointlyTech/cache-candidate/pull/42)) ([1e8d3fc0](https://github.com/JointlyTech/cache-candidate/commit/1e8d3fc0fb91fc5cc5710484c5af38b7864c7ef5))
+
+##### Bug Fixes
+
+*  events had to be passed entirely as options when present ([#44](https://github.com/JointlyTech/cache-candidate/pull/44)) ([8617c08d](https://github.com/JointlyTech/cache-candidate/commit/8617c08d62342266386fae2f4489c0c94bd5497f))
+
 #### 1.5.4 (2023-02-11)
 
 ##### Chores
