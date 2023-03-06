@@ -1,3 +1,8 @@
-export * from './default';
-export * from './models';
-export * from './lib';
+export { CacheCandidateOptionsDefault } from './default';
+export {
+  CandidateFunctionOptions,
+  CacheCandidateCacheAdapter,
+  CacheCandidateOptions,
+  DataCacheRecord
+} from './models';
+export { CacheCandidate, cacheCandidate } from './lib';
