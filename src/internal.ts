@@ -261,14 +261,10 @@ async function getExceedingAmountFromCandidateFunction(
 }
 function refreshTimeoutCacheRecord({
   timeoutCache,
-  key,
-  options,
-  HookPayload
+  key
 }: {
   timeoutCache: TimeoutCache;
   key: string;
-  options: CacheCandidateOptions;
-  HookPayload: PluginPayload;
 }) {
   timeoutCache.get(key)?.refresh();
 }
@@ -321,9 +317,7 @@ export async function letsCandidate({
     if (options.keepAlive) {
       refreshTimeoutCacheRecord({
         timeoutCache,
-        key,
-        options,
-        HookPayload
+        key
       });
     }
 
