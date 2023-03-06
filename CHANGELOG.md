@@ -1,3 +1,9 @@
+#### 1.5.6 (2023-03-06)
+
+##### Chores
+
+*  explicit export ([4fb168cd](https://github.com/JointlyTech/cache-candidate/commit/4fb168cd64c57379a4ca9fd06d8efa2167bb7365))
+
 #### 1.5.5 (2023-02-18)
 
 ##### Chores
