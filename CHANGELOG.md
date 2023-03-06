@@ -1,3 +1,9 @@
+#### 1.5.7 (2023-03-06)
+
+##### Refactors
+
+*  removed unnecessary internal parameters passed ([d82addd1](https://github.com/JointlyTech/cache-candidate/commit/d82addd100c489dac04faa97892ea5fe6efc9970))
+
 #### 1.5.6 (2023-03-06)
 
 ##### Chores
