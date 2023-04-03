@@ -416,4 +416,62 @@ describe('Plugins', () => {
     await sleep(EXECUTION_MARGIN);
     expect(counter).toBe(1);
   });
+
+  it('should throw if internal functions getDataCacheRecord is overridden', async () => {
+
+    const myPlugin = {
+      name: 'myPlugin',
+      hooks: [
+        {
+          hook: Hooks.INIT,
+          action: async (payload) => {
+            payload.internals.getDataCacheRecord = function () {
+              console.log("should not be possible");
+            };
+          }
+        }
+      ]
+    };
+
+    const mockFn = (step: number) =>
+      new Promise((resolve) => {
+        resolve(step);
+      });
+
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      plugins: [myPlugin]
+    });
+
+    await expect(wrappedMockFn(1)).rejects.toThrow();
+
+  });
+
+  it('should not throw if internal functions getDataCacheKey is overridden', async () => {
+
+    const myPlugin = {
+      name: 'myPlugin',
+      hooks: [
+        {
+          hook: Hooks.INIT,
+          action: async (payload) => {
+            payload.internals.getDataCacheKey = function () {
+              console.log("should be possible");
+            };
+          }
+        }
+      ]
+    };
+
+    const mockFn = (step: number) =>
+      new Promise((resolve) => {
+        resolve(step);
+      });
+
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      plugins: [myPlugin]
+    });
+
+    await expect(wrappedMockFn(1)).resolves.not.toThrowError();
+
+  });
 });

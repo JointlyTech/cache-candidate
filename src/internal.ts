@@ -275,6 +275,35 @@ export function uniqid(length = 10) {
     .substring(2, length + 2);
 }
 
+// returns a partially frozen object
+function internalsFactory () {
+  const internals = {
+    getDataCacheKey,
+    getDataCacheRecord,
+    addDataCacheRecord,
+    deleteDataCacheRecord,
+    isDataCacheRecordExpired,
+    getExceedingAmount
+  };
+  Object.defineProperty(internals, 'getDataCacheRecord', {
+    value: getDataCacheRecord,
+    writable: false
+  });
+  Object.defineProperty(internals, 'addDataCacheRecord', {
+    value: addDataCacheRecord,
+    writable: false
+  });
+  Object.defineProperty(internals, 'deleteDataCacheRecord', {
+    value: deleteDataCacheRecord,
+    writable: false
+  });
+  Object.defineProperty(internals, 'isDataCacheRecordExpired', {
+    value: isDataCacheRecordExpired,
+    writable: false
+  });
+
+  return internals;
+}
 export async function letsCandidate({
   options,
   key,
@@ -292,8 +321,7 @@ export async function letsCandidate({
   args: any[];
   originalMethod: (...args: any[]) => Promise<unknown>;
 }) {
-  // Make options.plugins freezed
-  //Object.freeze(options.plugins);
+
   const HookPayload = {
     options,
     key,
@@ -301,14 +329,7 @@ export async function letsCandidate({
     runningQueryCache,
     timeframeCache,
     fnArgs: args,
-    internals: {
-      getDataCacheKey,
-      getDataCacheRecord,
-      addDataCacheRecord,
-      deleteDataCacheRecord,
-      isDataCacheRecordExpired,
-      getExceedingAmount
-    }
+    internals: internalsFactory()
   };
   await ExecuteHook(Hooks.INIT, options.plugins, HookPayload);
   // Check if result exists in dataCache
