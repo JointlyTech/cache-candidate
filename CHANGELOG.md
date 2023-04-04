@@ -1,3 +1,9 @@
+#### 1.5.8 (2023-04-04)
+
+##### Bug Fixes
+
+*  partially freezes internal functions ([#33](https://github.com/JointlyTech/cache-candidate/pull/33)) ([#45](https://github.com/JointlyTech/cache-candidate/pull/45)) ([05fbb978](https://github.com/JointlyTech/cache-candidate/commit/05fbb9789d4309e535d840feaa72d830d82956f6))
+
 #### 1.5.7 (2023-03-06)
 
 ##### Refactors
