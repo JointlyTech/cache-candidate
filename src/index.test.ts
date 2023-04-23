@@ -418,7 +418,6 @@ describe('Plugins', () => {
   });
 
   it('should throw if internal functions getDataCacheRecord is overridden', async () => {
-
     const myPlugin = {
       name: 'myPlugin',
       hooks: [
@@ -426,7 +425,7 @@ describe('Plugins', () => {
           hook: Hooks.INIT,
           action: async (payload) => {
             payload.internals.getDataCacheRecord = function () {
-              console.log("should not be possible");
+              console.log('should not be possible');
             };
           }
         }
@@ -443,11 +442,9 @@ describe('Plugins', () => {
     });
 
     await expect(wrappedMockFn(1)).rejects.toThrow();
-
   });
 
   it('should not throw if internal functions getDataCacheKey is overridden', async () => {
-
     const myPlugin = {
       name: 'myPlugin',
       hooks: [
@@ -455,7 +452,7 @@ describe('Plugins', () => {
           hook: Hooks.INIT,
           action: async (payload) => {
             payload.internals.getDataCacheKey = function () {
-              console.log("should be possible");
+              console.log('should be possible');
             };
           }
         }
@@ -472,6 +469,5 @@ describe('Plugins', () => {
     });
 
     await expect(wrappedMockFn(1)).resolves.not.toThrowError();
-
   });
 });

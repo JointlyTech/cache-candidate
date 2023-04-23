@@ -276,7 +276,7 @@ export function uniqid(length = 10) {
 }
 
 // returns a partially frozen object
-function internalsFactory () {
+function internalsFactory() {
   const internals = {
     getDataCacheKey,
     getDataCacheRecord,
@@ -321,7 +321,6 @@ export async function letsCandidate({
   args: any[];
   originalMethod: (...args: any[]) => Promise<unknown>;
 }) {
-
   const HookPayload = {
     options,
     key,
