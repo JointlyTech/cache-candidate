@@ -1,3 +1,9 @@
+#### 1.5.10 (2023-04-23)
+
+##### Chores
+
+*  linting ([94899acd](https://github.com/JointlyTech/cache-candidate/commit/94899acdf33e2e29b1337eaa37e82d32ddb9721a))
+
 #### 1.5.9 (2023-04-23)
 
 ##### Continuous Integration
