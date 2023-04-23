@@ -1,3 +1,9 @@
+#### 1.5.9 (2023-04-23)
+
+##### Continuous Integration
+
+*  Added Node 20 in ci test matrix ([#46](https://github.com/JointlyTech/cache-candidate/pull/46)) ([8373a451](https://github.com/JointlyTech/cache-candidate/commit/8373a451fc696d4880f2a24515fd37dd89de1558))
+
 #### 1.5.8 (2023-04-04)
 
 ##### Bug Fixes
