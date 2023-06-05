@@ -8,6 +8,7 @@ export const CacheCandidateOptionsDefault: CacheCandidateOptions = {
   cache: makeAsyncMap(),
   keepAlive: false,
   plugins: [],
+  fetchingMode: 'default',
   events: {
     onCacheHit: (_) => {
       return _;

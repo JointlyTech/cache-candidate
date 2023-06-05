@@ -153,6 +153,7 @@ async function handleResult({
   timeframeCache,
   timeoutCache,
   args,
+  staleData,
   HookPayload
 }: {
   result: unknown;
@@ -163,6 +164,7 @@ async function handleResult({
   timeframeCache: TimeFrameCache;
   timeoutCache: TimeoutCache;
   args: any[];
+  staleData: Map<string, unknown>;
   HookPayload: PluginPayload;
 }): Promise<void> {
   const executionEnd = Date.now();
@@ -176,6 +178,10 @@ async function handleResult({
     executionTime,
     executionEnd
   });
+
+  if(options.fetchingMode === 'stale-while-revalidate') {
+    staleData.set(key, result);
+  }
 
   const exceedingAmount = await getExceedingAmount({
     options,
@@ -312,6 +318,7 @@ export async function letsCandidate({
   runningQueryCache,
   timeframeCache,
   args,
+  staleData,
   originalMethod
 }: {
   options: CacheCandidateOptions;
@@ -320,6 +327,7 @@ export async function letsCandidate({
   runningQueryCache: RunningQueryCache;
   timeframeCache: TimeFrameCache;
   args: any[];
+  staleData: Map<string, unknown>;
   originalMethod: (...args: any[]) => Promise<unknown>;
 }) {
   const HookPayload = {
@@ -365,6 +373,29 @@ export async function letsCandidate({
     return runningQuery;
   }
 
+  // if stale-while-revalidate is enabled, return stale data and refresh cache in the background
+  if (options.fetchingMode === 'stale-while-revalidate') {
+    if (staleData.has(key)) {
+      await ExecuteHook(Hooks.CACHE_HIT, options.plugins, {
+        ...HookPayload,
+        result: staleData.get(key)
+      });
+      options.events.onCacheHit({ key });
+      staleData.delete(key);
+      letsCandidate({
+        options,
+        key,
+        timeoutCache,
+        runningQueryCache,
+        timeframeCache,
+        args,
+        staleData,
+        originalMethod
+      });
+      return Promise.resolve(staleData.get(key));
+    }
+  }
+
   // Check the timeframeCache and delete every element that has passed the time frame.
   expireTimeFrameCacheRecords({ options, key, timeframeCache });
 
@@ -388,6 +419,7 @@ export async function letsCandidate({
       timeframeCache,
       timeoutCache,
       args,
+      staleData,
       HookPayload
     });
     return execution;
@@ -404,6 +436,7 @@ export async function letsCandidate({
       timeframeCache,
       timeoutCache,
       args,
+      staleData,
       HookPayload
     })
   );
@@ -432,11 +465,14 @@ export function getInitialState(_options: CacheCandidateInputOptions) {
     }
   };
 
+  const staleData = new Map();
+
   return {
     timeframeCache,
     runningQueryCache,
     uniqueIdentifier,
     timeoutCache,
-    options
+    options,
+    staleData
   };
 }
