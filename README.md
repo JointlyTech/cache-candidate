@@ -107,6 +107,10 @@ The options available are:
 - `cache` (_optional_): The cache adapter to be used. Defaults to `an in-memory cache based on Maps, but with Promises`.  
   Available adapters are:
   - `makeRedisCache`: A cache adapter based on Redis. Receives a Redis client as the first and only argument.
+- `fetchingMode` (_optional_): The fetching mode to use.  
+  Available modes are:
+  - `default`: The default behaviour, if an entry is found in the cache, it will be returned. Otherwise, the cache-candidate will proceed in its normal behaviour.
+  - `stale-while-revalidate`: If an entry is found in the cache, it will be returned. Otherwise, if an entry is found in the `staleData` map, it will be returned right after executing the function again to allow it to re-process in the background. Otherwise, the cache-candidate will proceed in its normal behaviour. As soon as the staleData entry is consumed, it will be deleted from the staleData map.
 - `events` (_optional_): Listener functions to be called at specific steps of the process.  
   Available events are:
   - `onCacheHit`: Called when the cache entry is hit.
