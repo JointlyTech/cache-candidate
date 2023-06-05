@@ -7,7 +7,8 @@ import {
   RunningQueryCache,
   RunningQueryRecordNotFound,
   TimeFrameCache,
-  CacheCandidateInputOptions
+  CacheCandidateInputOptions,
+  StaleMap
 } from './models';
 import { ExecuteHook, pluginHookWrap } from './plugins';
 import { Hooks, PluginPayload } from '@jointly/cache-candidate-plugin-base';
@@ -153,7 +154,7 @@ async function handleResult({
   timeframeCache,
   timeoutCache,
   args,
-  staleData,
+  staleMap,
   HookPayload
 }: {
   result: unknown;
@@ -164,7 +165,7 @@ async function handleResult({
   timeframeCache: TimeFrameCache;
   timeoutCache: TimeoutCache;
   args: any[];
-  staleData: Map<string, unknown>;
+  staleMap: StaleMap;
   HookPayload: PluginPayload;
 }): Promise<void> {
   const executionEnd = Date.now();
@@ -179,8 +180,8 @@ async function handleResult({
     executionEnd
   });
 
-  if(options.fetchingMode === 'stale-while-revalidate') {
-    staleData.set(key, result);
+  if (options.fetchingMode === 'stale-while-revalidate') {
+    staleMap.set(key, result);
   }
 
   const exceedingAmount = await getExceedingAmount({
@@ -318,7 +319,7 @@ export async function letsCandidate({
   runningQueryCache,
   timeframeCache,
   args,
-  staleData,
+  staleMap,
   originalMethod
 }: {
   options: CacheCandidateOptions;
@@ -327,7 +328,7 @@ export async function letsCandidate({
   runningQueryCache: RunningQueryCache;
   timeframeCache: TimeFrameCache;
   args: any[];
-  staleData: Map<string, unknown>;
+  staleMap: StaleMap;
   originalMethod: (...args: any[]) => Promise<unknown>;
 }) {
   const HookPayload = {
@@ -375,13 +376,13 @@ export async function letsCandidate({
 
   // if stale-while-revalidate is enabled, return stale data and refresh cache in the background
   if (options.fetchingMode === 'stale-while-revalidate') {
-    if (staleData.has(key)) {
+    if (staleMap.has(key)) {
       await ExecuteHook(Hooks.CACHE_HIT, options.plugins, {
         ...HookPayload,
-        result: staleData.get(key)
+        result: staleMap.get(key)
       });
       options.events.onCacheHit({ key });
-      staleData.delete(key);
+      staleMap.delete(key);
       letsCandidate({
         options,
         key,
@@ -389,10 +390,10 @@ export async function letsCandidate({
         runningQueryCache,
         timeframeCache,
         args,
-        staleData,
+        staleMap,
         originalMethod
       });
-      return Promise.resolve(staleData.get(key));
+      return Promise.resolve(staleMap.get(key));
     }
   }
 
@@ -419,7 +420,7 @@ export async function letsCandidate({
       timeframeCache,
       timeoutCache,
       args,
-      staleData,
+      staleMap,
       HookPayload
     });
     return execution;
@@ -436,7 +437,7 @@ export async function letsCandidate({
       timeframeCache,
       timeoutCache,
       args,
-      staleData,
+      staleMap,
       HookPayload
     })
   );
@@ -465,7 +466,7 @@ export function getInitialState(_options: CacheCandidateInputOptions) {
     }
   };
 
-  const staleData = new Map();
+  const staleMap = new Map();
 
   return {
     timeframeCache,
@@ -473,6 +474,6 @@ export function getInitialState(_options: CacheCandidateInputOptions) {
     uniqueIdentifier,
     timeoutCache,
     options,
-    staleData
+    staleMap
   };
 }

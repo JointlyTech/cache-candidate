@@ -75,6 +75,7 @@ export interface TimeFrameCacheRecord {
 export type TimeFrameCache = Map<string, Array<TimeFrameCacheRecord>>;
 export type RunningQueryCache = Map<string, Promise<any>>;
 export type TimeoutCache = Map<string, NodeJS.Timeout>;
+export type StaleMap = Map<string, unknown>;
 
 export const DataCacheRecordNotFound = Symbol('DataCacheRecordNotFound');
 export const RunningQueryRecordNotFound = Symbol('RunningQueryRecordNotFound');
