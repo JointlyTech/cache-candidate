@@ -13,6 +13,30 @@ export interface CacheCandidateCacheAdapter {
   [key: string]: any;
 }
 
+export interface CacheCandidateInputOptions {
+  ttl?: number;
+  timeFrame?: number;
+  candidateFunction?: (CandidateFunctionOptions) => boolean;
+  millisecondThreshold?: number;
+  requestsThreshold?: number;
+  keepAlive?: boolean;
+  cache?: CacheCandidateCacheAdapter;
+  events?: {
+    onCacheHit?: ({ key }: { key: string }) => void;
+    onCacheSet?: ({ key }: { key: string }) => void;
+    onCacheDelete?: ({ key }: { key: string }) => void;
+    onBeforeFunctionExecution?: ({ key }: { key: string }) => void;
+    onAfterFunctionExecution?: ({
+      key,
+      executionTime
+    }: {
+      key: string;
+      executionTime: number;
+    }) => void;
+  };
+  plugins?: Array<CacheCandidatePluginWithAdditionalParameters>;
+}
+
 export interface CacheCandidateOptions {
   ttl: number;
   timeFrame: number;
