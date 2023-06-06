@@ -257,6 +257,24 @@ describe('Library-wide Conditions', () => {
     expect(eventHits.get('onCacheDelete')).toBe(0);
   });
 
+  it("should call onCacheDelete when expirationMode is 'timeout-only' and ttl has passed", async () => {
+    const mockFn = jest.fn();
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      expirationMode: 'timeout-only',
+      requestsThreshold: 1,
+      timeFrame: TTL * 2,
+      ttl: TTL,
+      events: {
+        onCacheDelete: () => {
+          eventHits.set('onCacheDelete', eventHits.get('onCacheDelete')! + 1);
+        }
+      }
+    });
+    wrappedMockFn(1);
+    await sleep(TTL + EXECUTION_MARGIN);
+    expect(eventHits.get('onCacheDelete')).toBe(1);
+  });
+
   it('should empty the timeframe cache after timeframe has passed', async () => {
     let counter = 0;
     const mockFn = (step: number) =>
