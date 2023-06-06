@@ -10,10 +10,10 @@ import {
   getExceedingAmount
 } from './internal';
 
-import { CacheCandidateOptions } from './models';
+import { CacheCandidateInputOptions } from './models';
 import { checkHooks, ExecuteHook } from './plugins';
 
-export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
+export function CacheCandidate(_options: CacheCandidateInputOptions = {}) {
   const {
     timeframeCache,
     runningQueryCache,
@@ -73,7 +73,7 @@ export function CacheCandidate(_options: Partial<CacheCandidateOptions> = {}) {
 
 export function cacheCandidate<T extends (...args: any[]) => Promise<any>>(
   fn: T,
-  _options: Partial<CacheCandidateOptions> = {}
+  _options: CacheCandidateInputOptions = {}
 ) {
   const {
     timeframeCache,

@@ -6,7 +6,8 @@ import {
   TimeoutCache,
   RunningQueryCache,
   RunningQueryRecordNotFound,
-  TimeFrameCache
+  TimeFrameCache,
+  CacheCandidateInputOptions
 } from './models';
 import { ExecuteHook, pluginHookWrap } from './plugins';
 import { Hooks, PluginPayload } from '@jointly/cache-candidate-plugin-base';
@@ -409,7 +410,7 @@ export async function letsCandidate({
   return execution;
 }
 
-export function getInitialState(_options: Partial<CacheCandidateOptions>) {
+export function getInitialState(_options: CacheCandidateInputOptions) {
   // Create an in-function cache
   const timeframeCache: TimeFrameCache = new Map();
 
