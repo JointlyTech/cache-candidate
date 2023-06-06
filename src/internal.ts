@@ -360,6 +360,7 @@ export async function letsCandidate({
       ...HookPayload,
       result: runningQuery
     });
+    options.events.onCacheHit({ key });
     return runningQuery;
   }
 
