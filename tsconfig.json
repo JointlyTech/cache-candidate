@@ -12,5 +12,5 @@
     "experimentalDecorators": true,
     "allowJs": false
   },
-  "exclude": ["node_modules", "**/*.test.js", "**/*.test.ts", "dist"]
+  "exclude": ["node_modules", "**/*.test.js", "dist"]
 }
