@@ -1,3 +1,28 @@
+## 2.0.0 (2023-06-06)
+
+##### Documentation Changes
+
+*  updating docs with new default requestsThreshold value ([3ee4a1ad](https://github.com/JointlyTech/cache-candidate/commit/3ee4a1adb322a3514acb3eef3f9840a35467ec5a))
+
+##### New Features
+
+*  adding github automatic release action ([#53](https://github.com/JointlyTech/cache-candidate/pull/53)) ([96addc11](https://github.com/JointlyTech/cache-candidate/commit/96addc113e06dc19fea47d64f5dc83277290a80b))
+*  changed requestsThreshold default value to 1 ([#19](https://github.com/JointlyTech/cache-candidate/pull/19)) ([a3688804](https://github.com/JointlyTech/cache-candidate/commit/a3688804207548efe194dd3a291ff63e4b49d64b))
+*  expiration mode ([#41](https://github.com/JointlyTech/cache-candidate/pull/41)) ([d64c29da](https://github.com/JointlyTech/cache-candidate/commit/d64c29da0f87ee46f83c5a1e966244007313f85d))
+*  stale-while-revalidate ([#49](https://github.com/JointlyTech/cache-candidate/pull/49)) ([31f8d26d](https://github.com/JointlyTech/cache-candidate/commit/31f8d26db8cffedf743773aec238b304b40a8912))
+
+##### Bug Fixes
+
+*  emitting onCacheHit for runningQuery match ([#50](https://github.com/JointlyTech/cache-candidate/pull/50)) ([9c2fd6cf](https://github.com/JointlyTech/cache-candidate/commit/9c2fd6cfb45957a37ce0a3ae8c08c2f5672c9578))
+
+##### Other Changes
+
+*  refactoring tests ([#52](https://github.com/JointlyTech/cache-candidate/pull/52)) ([ef40e52c](https://github.com/JointlyTech/cache-candidate/commit/ef40e52cc297daf3f7758d99a61f838d62609367))
+
+##### Refactors
+
+*  moving from partial candidate options to specific input options ([#51](https://github.com/JointlyTech/cache-candidate/pull/51)) ([94687c7e](https://github.com/JointlyTech/cache-candidate/commit/94687c7eb591afdf6d61598f4f52fcb7f853dbde))
+
 #### 1.5.10 (2023-04-23)
 
 ##### Chores
