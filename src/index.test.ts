@@ -44,17 +44,18 @@ describe('Class Decorator', () => {
     expect(eventHits.get('onCacheHit')).toBe(0);
   });
 
-  it('should call onCacheDelete for async method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    await mock.mockAsyncFunction(step);
-    await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(1);
-  });
   it('should call onCacheDelete for sync method', async () => {
     const step = stepper();
     const mock = new MockClass(step, step, step, step);
     mock.mockFunction(step);
+    await sleep(TTL + EXECUTION_MARGIN);
+    expect(eventHits.get('onCacheDelete')).toBe(1);
+  });
+
+  it('should call onCacheDelete for async method', async () => {
+    const step = stepper();
+    const mock = new MockClass(step, step, step, step);
+    await mock.mockAsyncFunction(step);
     await sleep(TTL + EXECUTION_MARGIN);
     expect(eventHits.get('onCacheDelete')).toBe(1);
   });
@@ -67,6 +68,14 @@ describe('Class Decorator', () => {
     expect(eventHits.get('onCacheSet')).toBe(1);
   });
 
+  it('should call onCacheSet for async method', async () => {
+    const step = stepper();
+    const mock = new MockClass(step, step, step, step);
+    await mock.mockAsyncFunction(step);
+    await sleep(EXECUTION_MARGIN);
+    expect(eventHits.get('onCacheSet')).toBe(1);
+  });
+
   it('should call onCacheHit for sync method', async () => {
     const step = stepper();
     const mock = new MockClass(step, step, step, step);
@@ -75,14 +84,6 @@ describe('Class Decorator', () => {
     mock.mockFunction(step);
     await sleep(EXECUTION_MARGIN);
     expect(eventHits.get('onCacheHit')).toBe(1);
-  });
-
-  it('should call onCacheSet for async method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    await mock.mockAsyncFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(1);
   });
 
   it('should call onCacheHit for async method', async () => {
