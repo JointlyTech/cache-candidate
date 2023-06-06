@@ -80,7 +80,13 @@ export async function getDataCacheRecord({
     const { result, birthTime } = await options.cache.get(key);
     // Remove the dataCache record if the time frame has passed.
     if (isDataCacheRecordExpired({ birthTime, options })) {
-      await deleteDataCacheRecord({ options, key, HookPayload, result, staleMap });
+      await deleteDataCacheRecord({
+        options,
+        key,
+        HookPayload,
+        result,
+        staleMap
+      });
       return DataCacheRecordNotFound;
     } else {
       // Return the cached data
@@ -198,12 +204,17 @@ async function handleResult({
 
   if (exceedingAmount >= options.requestsThreshold) {
     addDataCacheRecord({ options, key, result, HookPayload }).finally(() => {
-      
       runningQueryCache.delete(key);
       timeoutCache.set(
         key,
         setTimeout(() => {
-          deleteDataCacheRecord({ options, key, HookPayload, result, staleMap });
+          deleteDataCacheRecord({
+            options,
+            key,
+            HookPayload,
+            result,
+            staleMap
+          });
           timeoutCache.delete(key);
         }, options.ttl).unref()
       );
@@ -347,7 +358,12 @@ export async function letsCandidate({
   };
   await ExecuteHook(Hooks.INIT, options.plugins, HookPayload);
   // Check if result exists in dataCache
-  const cachedData = await getDataCacheRecord({ options, key, HookPayload, staleMap });
+  const cachedData = await getDataCacheRecord({
+    options,
+    key,
+    HookPayload,
+    staleMap
+  });
   if (cachedData !== DataCacheRecordNotFound) {
     if (options.keepAlive) {
       refreshTimeoutCacheRecord({
