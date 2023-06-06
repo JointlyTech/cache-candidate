@@ -6,6 +6,7 @@ export const CacheCandidateOptionsDefault: CacheCandidateOptions = {
   timeFrame: 30000,
   requestsThreshold: 3,
   cache: makeAsyncMap(),
+  expirationMode: 'default',
   keepAlive: false,
   plugins: [],
   fetchingMode: 'default',

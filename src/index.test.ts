@@ -225,6 +225,56 @@ describe('Higher-Order Function', () => {
 });
 
 describe('Library-wide Conditions', () => {
+  it("should throw if expirationMode is 'eject' and 'keepAlive' is true", async () => {
+    expect(() => {
+      cacheCandidate(
+        () => {
+          return Promise.resolve(true);
+        },
+        {
+          expirationMode: 'eject',
+          keepAlive: true
+        }
+      );
+    }).toThrow();
+  });
+
+  it("should not call onCacheDelete when expirationMode is 'eject' and ttl has passed", async () => {
+    const mockFn = jest.fn();
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      expirationMode: 'eject',
+      requestsThreshold: 1,
+      timeFrame: TTL * 2,
+      ttl: TTL,
+      events: {
+        onCacheDelete: () => {
+          eventHits.set('onCacheDelete', eventHits.get('onCacheDelete')! + 1);
+        }
+      }
+    });
+    wrappedMockFn(1);
+    await sleep(TTL + EXECUTION_MARGIN);
+    expect(eventHits.get('onCacheDelete')).toBe(0);
+  });
+
+  it("should call onCacheDelete when expirationMode is 'timeout-only' and ttl has passed", async () => {
+    const mockFn = jest.fn();
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      expirationMode: 'timeout-only',
+      requestsThreshold: 1,
+      timeFrame: TTL * 2,
+      ttl: TTL,
+      events: {
+        onCacheDelete: () => {
+          eventHits.set('onCacheDelete', eventHits.get('onCacheDelete')! + 1);
+        }
+      }
+    });
+    wrappedMockFn(1);
+    await sleep(TTL + EXECUTION_MARGIN);
+    expect(eventHits.get('onCacheDelete')).toBe(1);
+  });
+
   it('should empty the timeframe cache after timeframe has passed', async () => {
     let counter = 0;
     const mockFn = (step: number) =>

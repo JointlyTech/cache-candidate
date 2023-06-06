@@ -7,7 +7,8 @@ import {
   addDataCacheRecord,
   deleteDataCacheRecord,
   isDataCacheRecordExpired,
-  getExceedingAmount
+  getExceedingAmount,
+  checkExpirationMode
 } from './internal';
 
 import { CacheCandidateInputOptions } from './models';
@@ -24,6 +25,7 @@ export function CacheCandidate(_options: CacheCandidateInputOptions = {}) {
   } = getInitialState(_options);
 
   checkHooks({ options });
+  checkExpirationMode(options);
 
   ExecuteHook(Hooks.SETUP, options.plugins, {
     options: { ...options, plugins: undefined },
@@ -87,6 +89,7 @@ export function cacheCandidate<T extends (...args: any[]) => Promise<any>>(
   } = getInitialState(_options);
 
   checkHooks({ options });
+  checkExpirationMode(options);
 
   ExecuteHook(Hooks.SETUP, options.plugins, {
     options: { ...options, plugins: undefined },
