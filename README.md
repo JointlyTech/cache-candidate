@@ -102,7 +102,7 @@ The options available are:
   - `args`: The arguments passed to the current function.
   - `timeFrameCacheRecords`: The cache records of the last `timeFrame` milliseconds.
 - `millisecondThreshold` (_optional_): The threshold in milliseconds to be considered for the condition checks. If not passed, this criteria will be ignored.
-- `requestsThreshold` (_optional_): The number of requests to be considered for the condition checks. Default: `3`.
+- `requestsThreshold` (_optional_): The number of requests to be considered for the condition checks. Default: `1`.
 - `expirationMode` (_optional_): The expiration mode to use. Default: `default`.
     - `default`: The cache-candidate will be responsible for generating timeouts that, when reached, will call the provided delete method of the cache adapter.  
     - `timeout-only`: The cache-candidate will be responsible for generating timeouts that, when reached, will *not* call the provided delete method of the cache adapter. This means your cache adapter must have a mechanism to delete the cache record when the timeout is reached (Ex. Redis EX option). Plugins and events will be called as usual.  
