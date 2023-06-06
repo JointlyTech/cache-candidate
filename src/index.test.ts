@@ -427,6 +427,36 @@ describe('Library-wide Conditions', () => {
     await sleep(EXECUTION_MARGIN);
     expect(counter).toBe(5);
   });
+
+  it('should return stale value when ttl has passed and fetchingMode is stale-while-revalidate', async () => {
+    let counter = 0;
+    const mockFn = (step: number) =>
+      new Promise((resolve) => {
+        setTimeout(() => {
+          counter += step;
+          resolve(counter);
+        }, 0);
+      });
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      requestsThreshold: 1,
+      ttl: TTL,
+      fetchingMode: 'stale-while-revalidate'
+    });
+
+    let result;
+    result = await wrappedMockFn(1);
+    await sleep(TTL + EXECUTION_MARGIN);
+    expect(result).toBe(1);
+    expect(counter).toBe(1);
+    result = await wrappedMockFn(1);
+    await sleep(TTL + EXECUTION_MARGIN);
+    expect(result).toBe(1);
+    expect(counter).toBe(2);
+    result = await wrappedMockFn(1);
+    await sleep(TTL + EXECUTION_MARGIN);
+    expect(result).toBe(2);
+    expect(counter).toBe(3);
+  });
 });
 
 describe('Plugins', () => {

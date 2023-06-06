@@ -20,6 +20,11 @@ The Map containing the method executions in a given timeframe.
 The Map containing the running queries (Promises yet to be fulfilled).  
 Please, refer to the [Cache Stampede](https://github.com/JointlyTech/cache-candidate#cache-stampede) section for more information.
 
+### StaleMap
+
+The Map containing the stale values.  
+This map is used only when the `fetchingMode` is set to `stale-while-revalidate`.
+
 ### Exceeding Amount
 
 The value calculated based on [candidate conditions](https://github.com/JointlyTech/cache-candidate#conditions--criterias) which is then compared to the requestsThreshold.  

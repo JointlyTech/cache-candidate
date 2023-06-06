@@ -19,7 +19,8 @@ export function CacheCandidate(_options: CacheCandidateInputOptions = {}) {
     runningQueryCache,
     uniqueIdentifier,
     timeoutCache,
-    options
+    options,
+    staleMap
   } = getInitialState(_options);
 
   checkHooks({ options });
@@ -65,6 +66,7 @@ export function CacheCandidate(_options: CacheCandidateInputOptions = {}) {
         runningQueryCache,
         timeframeCache,
         args,
+        staleMap,
         originalMethod
       });
     };
@@ -80,7 +82,8 @@ export function cacheCandidate<T extends (...args: any[]) => Promise<any>>(
     runningQueryCache,
     uniqueIdentifier,
     timeoutCache,
-    options
+    options,
+    staleMap
   } = getInitialState(_options);
 
   checkHooks({ options });
@@ -110,6 +113,7 @@ export function cacheCandidate<T extends (...args: any[]) => Promise<any>>(
       runningQueryCache,
       timeframeCache,
       args,
+      staleMap,
       originalMethod: fn
     }) as ReturnType<T>;
   };

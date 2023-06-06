@@ -21,6 +21,7 @@ export interface CacheCandidateInputOptions {
   requestsThreshold?: number;
   keepAlive?: boolean;
   cache?: CacheCandidateCacheAdapter;
+  fetchingMode?: 'stale-while-revalidate' | 'default';
   events?: {
     onCacheHit?: ({ key }: { key: string }) => void;
     onCacheSet?: ({ key }: { key: string }) => void;
@@ -45,6 +46,7 @@ export interface CacheCandidateOptions {
   requestsThreshold: number;
   keepAlive: boolean;
   cache: CacheCandidateCacheAdapter;
+  fetchingMode: 'stale-while-revalidate' | 'default';
   events: {
     onCacheHit: ({ key }: { key: string }) => void;
     onCacheSet: ({ key }: { key: string }) => void;
@@ -74,6 +76,7 @@ export interface TimeFrameCacheRecord {
 export type TimeFrameCache = Map<string, Array<TimeFrameCacheRecord>>;
 export type RunningQueryCache = Map<string, Promise<any>>;
 export type TimeoutCache = Map<string, NodeJS.Timeout>;
+export type StaleMap = Map<string, unknown>;
 
 export const DataCacheRecordNotFound = Symbol('DataCacheRecordNotFound');
 export const RunningQueryRecordNotFound = Symbol('RunningQueryRecordNotFound');

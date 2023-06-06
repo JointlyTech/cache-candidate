@@ -7,7 +7,8 @@ import {
   RunningQueryCache,
   RunningQueryRecordNotFound,
   TimeFrameCache,
-  CacheCandidateInputOptions
+  CacheCandidateInputOptions,
+  StaleMap
 } from './models';
 import { ExecuteHook, pluginHookWrap } from './plugins';
 import { Hooks, PluginPayload } from '@jointly/cache-candidate-plugin-base';
@@ -72,13 +73,20 @@ export function isDataCacheRecordExpired({
 export async function getDataCacheRecord({
   options,
   key,
-  HookPayload
+  HookPayload,
+  staleMap
 }): Promise<unknown | undefined> {
   if (await options.cache.has(key)) {
     const { result, birthTime } = await options.cache.get(key);
     // Remove the dataCache record if the time frame has passed.
     if (isDataCacheRecordExpired({ birthTime, options })) {
-      await deleteDataCacheRecord({ options, key, HookPayload });
+      await deleteDataCacheRecord({
+        options,
+        key,
+        HookPayload,
+        result,
+        staleMap
+      });
       return DataCacheRecordNotFound;
     } else {
       // Return the cached data
@@ -126,12 +134,19 @@ export async function addDataCacheRecord({
 export async function deleteDataCacheRecord({
   options,
   key,
-  HookPayload
+  HookPayload,
+  result,
+  staleMap
 }: {
   options: CacheCandidateOptions;
   key: string;
   HookPayload: PluginPayload;
+  result: unknown;
+  staleMap: StaleMap;
 }) {
+  if (options.fetchingMode === 'stale-while-revalidate') {
+    staleMap.set(key, result);
+  }
   (
     pluginHookWrap(
       Hooks.DATACACHE_RECORD_DELETE_PRE,
@@ -153,6 +168,7 @@ async function handleResult({
   timeframeCache,
   timeoutCache,
   args,
+  staleMap,
   HookPayload
 }: {
   result: unknown;
@@ -163,6 +179,7 @@ async function handleResult({
   timeframeCache: TimeFrameCache;
   timeoutCache: TimeoutCache;
   args: any[];
+  staleMap: StaleMap;
   HookPayload: PluginPayload;
 }): Promise<void> {
   const executionEnd = Date.now();
@@ -191,7 +208,13 @@ async function handleResult({
       timeoutCache.set(
         key,
         setTimeout(() => {
-          deleteDataCacheRecord({ options, key, HookPayload });
+          deleteDataCacheRecord({
+            options,
+            key,
+            HookPayload,
+            result,
+            staleMap
+          });
           timeoutCache.delete(key);
         }, options.ttl).unref()
       );
@@ -312,6 +335,7 @@ export async function letsCandidate({
   runningQueryCache,
   timeframeCache,
   args,
+  staleMap,
   originalMethod
 }: {
   options: CacheCandidateOptions;
@@ -320,6 +344,7 @@ export async function letsCandidate({
   runningQueryCache: RunningQueryCache;
   timeframeCache: TimeFrameCache;
   args: any[];
+  staleMap: StaleMap;
   originalMethod: (...args: any[]) => Promise<unknown>;
 }) {
   const HookPayload = {
@@ -333,7 +358,12 @@ export async function letsCandidate({
   };
   await ExecuteHook(Hooks.INIT, options.plugins, HookPayload);
   // Check if result exists in dataCache
-  const cachedData = await getDataCacheRecord({ options, key, HookPayload });
+  const cachedData = await getDataCacheRecord({
+    options,
+    key,
+    HookPayload,
+    staleMap
+  });
   if (cachedData !== DataCacheRecordNotFound) {
     if (options.keepAlive) {
       refreshTimeoutCacheRecord({
@@ -365,6 +395,30 @@ export async function letsCandidate({
     return runningQuery;
   }
 
+  // if stale-while-revalidate is enabled, return stale data and refresh cache in the background
+  if (options.fetchingMode === 'stale-while-revalidate') {
+    if (staleMap.has(key)) {
+      const staleValue = staleMap.get(key);
+      await ExecuteHook(Hooks.CACHE_HIT, options.plugins, {
+        ...HookPayload,
+        result: staleValue
+      });
+      options.events.onCacheHit({ key });
+      staleMap.delete(key);
+      letsCandidate({
+        options,
+        key,
+        timeoutCache,
+        runningQueryCache,
+        timeframeCache,
+        args,
+        staleMap,
+        originalMethod
+      });
+      return Promise.resolve(staleValue);
+    }
+  }
+
   // Check the timeframeCache and delete every element that has passed the time frame.
   expireTimeFrameCacheRecords({ options, key, timeframeCache });
 
@@ -388,6 +442,7 @@ export async function letsCandidate({
       timeframeCache,
       timeoutCache,
       args,
+      staleMap,
       HookPayload
     });
     return execution;
@@ -404,6 +459,7 @@ export async function letsCandidate({
       timeframeCache,
       timeoutCache,
       args,
+      staleMap,
       HookPayload
     })
   );
@@ -432,11 +488,14 @@ export function getInitialState(_options: CacheCandidateInputOptions) {
     }
   };
 
+  const staleMap = new Map();
+
   return {
     timeframeCache,
     runningQueryCache,
     uniqueIdentifier,
     timeoutCache,
-    options
+    options,
+    staleMap
   };
 }
