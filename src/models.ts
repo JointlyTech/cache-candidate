@@ -21,6 +21,7 @@ export interface CacheCandidateInputOptions {
   requestsThreshold?: number;
   keepAlive?: boolean;
   cache?: CacheCandidateCacheAdapter;
+  fetchingMode?: 'stale-while-revalidate' | 'default';
   events?: {
     onCacheHit?: ({ key }: { key: string }) => void;
     onCacheSet?: ({ key }: { key: string }) => void;
