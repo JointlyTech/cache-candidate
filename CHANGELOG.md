@@ -1,3 +1,9 @@
+#### 2.0.1 (2024-05-07)
+
+##### Chores
+
+*  updating packages ([bebdab31](https://github.com/JointlyTech/cache-candidate/commit/bebdab31eefde95726dcc7692f56aee8661caea4))
+
 ## 2.0.0 (2023-06-06)
 
 ##### Documentation Changes
