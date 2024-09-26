@@ -1,3 +1,13 @@
+### 2.1.0 (2024-09-26)
+
+##### Chores
+
+*  removing test ts from eslint ([f1c59282](https://github.com/JointlyTech/cache-candidate/commit/f1c592825e611c5248a31435254f08e55f834905))
+
+##### New Features
+
+*  allowing for customKeyFunction in higher-order function ([5aea03ec](https://github.com/JointlyTech/cache-candidate/commit/5aea03ec1b4e4e28055a5f6a8c88b2be3fd48698))
+
 #### 2.0.1 (2024-05-07)
 
 ##### Chores
