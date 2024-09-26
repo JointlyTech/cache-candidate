@@ -111,7 +111,9 @@ export function cacheCandidate<T extends (...args: any[]) => Promise<any>>(
   return function cacheCandidateWrapper(...args: Parameters<T>): ReturnType<T> {
     return letsCandidate({
       options,
-      key: _options.customKeyFunction ? _options.customKeyFunction(args) : getDataCacheKey([uniqueIdentifier, JSON.stringify(args)]),
+      key: _options.customKeyFunction
+        ? _options.customKeyFunction(args)
+        : getDataCacheKey([uniqueIdentifier, JSON.stringify(args)]),
       timeoutCache,
       runningQueryCache,
       timeframeCache,

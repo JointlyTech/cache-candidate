@@ -230,7 +230,7 @@ describe('Higher-Order Function', () => {
         return 'custom-key';
       },
       events: {
-        onCacheSet: ({key}) => {
+        onCacheSet: ({ key }) => {
           expect(key).toBe('custom-key');
         }
       }
