@@ -101,6 +101,9 @@ The options available are:
   - `executionTime`: The execution time of the current function execution in milliseconds.
   - `args`: The arguments passed to the current function.
   - `timeFrameCacheRecords`: The cache records of the last `timeFrame` milliseconds.
+- `customKeyFunction` (_optional_): A function to generate a custom key for every cache record.  
+  The function receives the arguments passed to the current function and should return a string.  
+  If not passed, the key will be generated based on an internal algorithm that considers the arguments passed to the function.
 - `millisecondThreshold` (_optional_): The threshold in milliseconds to be considered for the condition checks. If not passed, this criteria will be ignored.
 - `requestsThreshold` (_optional_): The number of requests to be considered for the condition checks. Default: `1`.
 - `expirationMode` (_optional_): The expiration mode to use. Default: `default`.

@@ -17,6 +17,7 @@ export interface CacheCandidateInputOptions {
   ttl?: number;
   timeFrame?: number;
   candidateFunction?: (CandidateFunctionOptions) => boolean;
+  customKeyFunction?: (args: any) => string;
   millisecondThreshold?: number;
   requestsThreshold?: number;
   expirationMode?: 'default' | 'timeout-only' | 'eject';

@@ -222,6 +222,22 @@ describe('Higher-Order Function', () => {
     await sleep(TTL + EXECUTION_MARGIN);
     expect(eventHits.get('onCacheHit')).toBe(1);
   });
+
+  it('should allow for custom getDataCacheKey functions', async () => {
+    const mockFn = jest.fn();
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      customKeyFunction: (args) => {
+        return 'custom-key';
+      },
+      events: {
+        onCacheSet: ({key}) => {
+          expect(key).toBe('custom-key');
+        }
+      }
+    });
+    wrappedMockFn(1);
+    await sleep(TTL + EXECUTION_MARGIN);
+  });
 });
 
 describe('Library-wide Conditions', () => {
