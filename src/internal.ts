@@ -493,9 +493,8 @@ export async function letsCandidate({
         HookPayload
       })
     )
-    .catch((error: Error) => {
+    .catch(() => {
       runningQueryCache.delete(key);
-      throw error;
     });
 
   return execution;
