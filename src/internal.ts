@@ -491,7 +491,10 @@ export async function letsCandidate({
       staleMap,
       HookPayload
     })
-  );
+  ).catch((error: Error) => {
+    runningQueryCache.delete(key);
+    throw error;
+  });
 
   return execution;
 }
