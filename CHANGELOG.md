@@ -1,3 +1,9 @@
+#### 2.1.2 (2024-12-09)
+
+##### Bug Fixes
+
+*  removing throw from execution catch ([614c22a7](https://github.com/JointlyTech/cache-candidate/commit/614c22a747edc6d56d4c379a58701b9128cb2f3f))
+
 #### 2.1.1 (2024-12-09)
 
 ##### Chores
