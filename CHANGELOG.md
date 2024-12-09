@@ -1,3 +1,14 @@
+#### 2.1.1 (2024-12-09)
+
+##### Chores
+
+*  linting ([cf551885](https://github.com/JointlyTech/cache-candidate/commit/cf55188518d61bea06a9b08ca6a9b048f04885d5))
+*  linting ([a808d771](https://github.com/JointlyTech/cache-candidate/commit/a808d7718db44264a1f14fc8b87a3ac80f64ddd9))
+
+##### Bug Fixes
+
+*  promise errors are now thrown correctly ([7a9b62c1](https://github.com/JointlyTech/cache-candidate/commit/7a9b62c1144a44509d69e4bed9ed77b4cb9aa5d0))
+
 ### 2.1.0 (2024-09-26)
 
 ##### Chores
