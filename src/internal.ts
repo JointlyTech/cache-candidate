@@ -478,23 +478,25 @@ export async function letsCandidate({
   }
 
   runningQueryCache.set(key, execution);
-  execution.then((result: unknown) =>
-    handleResult({
-      result,
-      runningQueryCache,
-      key,
-      executionStart,
-      options,
-      timeframeCache,
-      timeoutCache,
-      args,
-      staleMap,
-      HookPayload
-    })
-  ).catch((error: Error) => {
-    runningQueryCache.delete(key);
-    throw error;
-  });
+  execution
+    .then((result: unknown) =>
+      handleResult({
+        result,
+        runningQueryCache,
+        key,
+        executionStart,
+        options,
+        timeframeCache,
+        timeoutCache,
+        args,
+        staleMap,
+        HookPayload
+      })
+    )
+    .catch((error: Error) => {
+      runningQueryCache.delete(key);
+      throw error;
+    });
 
   return execution;
 }
