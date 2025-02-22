@@ -17,8 +17,10 @@ import { checkHooks, ExecuteHook } from './plugins';
 export function cacheCandidate<T extends (...args: any[]) => any>(
   fn: T,
   _options: CacheCandidateInputOptions = {}
-): (...args: Parameters<T>) => ReturnType<T> extends Promise<any> 
-  ? ReturnType<T> 
+): (
+  ...args: Parameters<T>
+) => ReturnType<T> extends Promise<any>
+  ? ReturnType<T>
   : Promise<ReturnType<T>> {
   const {
     timeframeCache,
@@ -49,8 +51,10 @@ export function cacheCandidate<T extends (...args: any[]) => any>(
     }
   });
 
-  return function cacheCandidateWrapper(...args: Parameters<T>): ReturnType<T> extends Promise<any> 
-    ? ReturnType<T> 
+  return function cacheCandidateWrapper(
+    ...args: Parameters<T>
+  ): ReturnType<T> extends Promise<any>
+    ? ReturnType<T>
     : Promise<ReturnType<T>> {
     return letsCandidate({
       options,
@@ -63,8 +67,8 @@ export function cacheCandidate<T extends (...args: any[]) => any>(
       args,
       staleMap,
       originalMethod: fn
-    }) as ReturnType<T> extends Promise<any> 
-      ? ReturnType<T> 
+    }) as ReturnType<T> extends Promise<any>
+      ? ReturnType<T>
       : Promise<ReturnType<T>>;
   };
 }
