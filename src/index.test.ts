@@ -168,9 +168,7 @@ test.describe('Higher-Order Function', async () => {
     wrappedMockFn(1);
     await sleep(TTL + EXECUTION_MARGIN);
   });
-});
 
-test.describe('Library-wide Conditions', async () => {
   await test("should throw if expirationMode is 'eject' and 'keepAlive' is true", async () => {
     assert.throws(() => {
       cacheCandidate(() => Promise.resolve(true), {
