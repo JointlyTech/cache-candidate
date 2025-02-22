@@ -55,8 +55,7 @@ function getRunningQueryRecord({
   return RunningQueryRecordNotFound;
 }
 
-export function getDataCacheKey(...args: any[]) {
-  // Return an obfuscated key
+export function getDataCacheKey(args: any[]) {
   return createHash('sha256').update(args.join('|')).digest('hex');
 }
 

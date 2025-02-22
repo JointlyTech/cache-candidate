@@ -3,9 +3,6 @@ import {
   Hooks
 } from '@jointly/cache-candidate-plugin-base';
 import { cacheCandidate } from './lib';
-import { MockClass } from './test/MockClass';
-import { MockClass as MockClass2 } from './test/MockClass2';
-
 import {
   step,
   eventHits,
@@ -13,7 +10,8 @@ import {
   ENOUGH_TIME,
   TTL,
   EXECUTION_MARGIN,
-  flushMaps
+  flushMaps,
+  options
 } from './test/options';
 
 const stepper = step();
@@ -31,90 +29,22 @@ describe('Basic Test Environment', () => {
   });
 });
 
-describe('Class Decorator', () => {
-  it('should separate the cache entries for MockClass and MockClass2 even if original names are equal', async () => {
+describe('Higher-Order Function', () => {
+  it('should separate the cache entries for different functions with same parameters', async () => {
     const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    const mock2 = new MockClass2(step, step, step, step);
-    mock.mockFunction(step);
+    const mockFn1 = (x: number) => x;
+    const mockFn2 = (x: number) => x;
+    const wrappedMockFn1 = cacheCandidate(mockFn1, options);
+    const wrappedMockFn2 = cacheCandidate(mockFn2, options);
+    
+    await wrappedMockFn1(step);
     await sleep(TTL + EXECUTION_MARGIN);
-    mock2.mockFunction(step);
+    await wrappedMockFn2(step);
     await sleep(TTL + EXECUTION_MARGIN);
     expect(eventHits.get('onCacheSet')).toBe(2);
     expect(eventHits.get('onCacheHit')).toBe(0);
   });
 
-  it('should call onCacheDelete for sync method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    mock.mockFunction(step);
-    await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(1);
-  });
-
-  it('should call onCacheDelete for async method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    await mock.mockAsyncFunction(step);
-    await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(1);
-  });
-
-  it('should call onCacheSet for sync method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(1);
-  });
-
-  it('should call onCacheSet for async method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    await mock.mockAsyncFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(1);
-  });
-
-  it('should call onCacheHit for sync method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheHit')).toBe(1);
-  });
-
-  it('should call onCacheHit for async method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    await mock.mockAsyncFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    await mock.mockAsyncFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheHit')).toBe(1);
-  });
-
-  it('should make an item expire after TTL', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(1);
-    expect(eventHits.get('onCacheHit')).toBe(1);
-    await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(1);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(2);
-    expect(eventHits.get('onCacheHit')).toBe(1);
-  });
-});
-
-describe('Higher-Order Function', () => {
   it('should call onCacheDelete for sync method', async () => {
     const mockFn = jest.fn();
     const wrappedMockFn = cacheCandidate(mockFn, {
@@ -522,6 +452,29 @@ describe('Library-wide Conditions', () => {
     await sleep(TTL + EXECUTION_MARGIN);
     expect(result).toBe(2);
     expect(counter).toBe(3);
+  });
+
+  it('should remove failed queries from running query cache', async () => {
+    let attempts = 0;
+    const mockFn = () => {
+      attempts++;
+      if (attempts === 1) {
+        return Promise.reject(new Error('test error'));
+      }
+      return Promise.resolve('success');
+    };
+
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      requestsThreshold: 1
+    });
+
+    // First call should fail
+    await expect(wrappedMockFn()).rejects.toThrow('test error');
+    
+    // Second call should succeed and not return cached error
+    const result = await wrappedMockFn();
+    expect(result).toBe('success');
+    expect(attempts).toBe(2);
   });
 });
 

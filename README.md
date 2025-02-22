@@ -1,6 +1,6 @@
 # What is it?
 
-This is a library providing both a higher-order function and a decorator to cache the result of a function/method if given conditions are met.
+This is a library providing a higher-order function to cache the result of a function if given conditions are met.
 
 # How do I install it?
 
@@ -84,9 +84,7 @@ await sleep(31000); // <-- This will invalidate the cache because of the ttl
 
 # How does it work?
 
-## Higher-order function
-
-The library exposes the `cacheCandidate` function which accepts the function to be cached as the first argument and the options as the second argument.  
+The library exposes the `cacheCandidate` function which accepts the function to be cached as the first argument and the options as the second argument.  
 The returned function is an async function which returns a Promise fulfilled with the cached value if the method has already been called with the same arguments and/or the conditions are met.  
 
 The options available are:
@@ -131,30 +129,12 @@ The options available are:
 - `plugins` (_optional_): An array of plugins to be used. Default: `[]`.  
   Please, refer to the [@jointly/cache-candidate-plugin-base](https://github.com/JointlyTech/cache-candidate-plugin-base) package for more information.
 
-## Decorator
+## Key composition
 
-The decorator expects to receive the options as the first argument and works exactly as the higher-order function.
+The cache key is composed based on the following criteria:
 
-### Example
-
-```ts
-import { CacheCandidate } from '@jointly/cache-candidate';
-
-class MyClass {
-  @CacheCandidate({
-    requestsThreshold: 3,
-    ttl: 30000,
-  })
-  async getUsers(filters = {}) {
-    return db.query('SELECT * FROM users WHERE ?', filters);
-  }
-}
-
-const myInstance = new MyClass();
-await myInstance.getUsers({ name: 'John' }); // <-- This won't be cached, because the requestsThreshold is 3
-await myInstance.getUsers({ name: 'John' }); // <-- This won't be cached, because the requestsThreshold is 3
-await myInstance.getUsers({ name: 'John' }); // <-- This WILL be cached, because the requestsThreshold is 3!
-```
+- The arguments passed to the method (JSON.stringify)
+- `uniqueIdentifier`: A uniqid generated to allow multiple files to contain the same function name
 
 ## Conditions / Criterias
 The conditions are, within the given `timeFrame`:
