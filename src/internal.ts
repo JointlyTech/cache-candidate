@@ -334,22 +334,6 @@ function internalsFactory() {
     isDataCacheRecordExpired,
     getExceedingAmount
   };
-  Object.defineProperty(internals, 'getDataCacheRecord', {
-    value: getDataCacheRecord,
-    writable: false
-  });
-  Object.defineProperty(internals, 'addDataCacheRecord', {
-    value: addDataCacheRecord,
-    writable: false
-  });
-  Object.defineProperty(internals, 'deleteDataCacheRecord', {
-    value: deleteDataCacheRecord,
-    writable: false
-  });
-  Object.defineProperty(internals, 'isDataCacheRecordExpired', {
-    value: isDataCacheRecordExpired,
-    writable: false
-  });
 
   return internals;
 }
