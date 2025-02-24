@@ -5,4 +5,4 @@ export {
   CacheCandidateOptions,
   DataCacheRecord
 } from './models';
-export { CacheCandidate, cacheCandidate } from './lib';
+export { cacheCandidate } from './lib';

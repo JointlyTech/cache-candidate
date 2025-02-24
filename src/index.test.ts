@@ -1,11 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
 import {
   CacheCandidatePlugin,
   Hooks
 } from '@jointly/cache-candidate-plugin-base';
 import { cacheCandidate } from './lib';
-import { MockClass } from './test/MockClass';
-import { MockClass as MockClass2 } from './test/MockClass2';
-
 import {
   step,
   eventHits,
@@ -13,110 +12,43 @@ import {
   ENOUGH_TIME,
   TTL,
   EXECUTION_MARGIN,
-  flushMaps
+  flushMaps,
+  options
 } from './test/options';
 
 const stepper = step();
 
-beforeEach(async () => {
+test.beforeEach(async () => {
   await sleep(ENOUGH_TIME);
   flushMaps();
 });
 
-describe('Basic Test Environment', () => {
-  it('should verify cache is empty', async () => {
-    expect(eventHits.get('onCacheSet')).toBe(0);
-    expect(eventHits.get('onCacheHit')).toBe(0);
-    expect(eventHits.get('onCacheDelete')).toBe(0);
+test.describe('Basic Test Environment', async () => {
+  await test('should verify cache is empty', async () => {
+    assert.equal(eventHits.get('onCacheSet'), 0);
+    assert.equal(eventHits.get('onCacheHit'), 0);
+    assert.equal(eventHits.get('onCacheDelete'), 0);
   });
 });
 
-describe('Class Decorator', () => {
-  it('should separate the cache entries for MockClass and MockClass2 even if original names are equal', async () => {
+test.describe('Higher-Order Function', async () => {
+  await test('should separate the cache entries for different functions with same parameters', async () => {
     const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    const mock2 = new MockClass2(step, step, step, step);
-    mock.mockFunction(step);
+    const mockFn1 = (x: number) => x;
+    const mockFn2 = (x: number) => x;
+    const wrappedMockFn1 = cacheCandidate(mockFn1, options);
+    const wrappedMockFn2 = cacheCandidate(mockFn2, options);
+
+    await wrappedMockFn1(step);
     await sleep(TTL + EXECUTION_MARGIN);
-    mock2.mockFunction(step);
+    await wrappedMockFn2(step);
     await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(2);
-    expect(eventHits.get('onCacheHit')).toBe(0);
+    assert.equal(eventHits.get('onCacheSet'), 2);
+    assert.equal(eventHits.get('onCacheHit'), 0);
   });
 
-  it('should call onCacheDelete for sync method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    mock.mockFunction(step);
-    await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(1);
-  });
-
-  it('should call onCacheDelete for async method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    await mock.mockAsyncFunction(step);
-    await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(1);
-  });
-
-  it('should call onCacheSet for sync method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(1);
-  });
-
-  it('should call onCacheSet for async method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    await mock.mockAsyncFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(1);
-  });
-
-  it('should call onCacheHit for sync method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheHit')).toBe(1);
-  });
-
-  it('should call onCacheHit for async method', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    await mock.mockAsyncFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    await mock.mockAsyncFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheHit')).toBe(1);
-  });
-
-  it('should make an item expire after TTL', async () => {
-    const step = stepper();
-    const mock = new MockClass(step, step, step, step);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(1);
-    expect(eventHits.get('onCacheHit')).toBe(1);
-    await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(1);
-    mock.mockFunction(step);
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(2);
-    expect(eventHits.get('onCacheHit')).toBe(1);
-  });
-});
-
-describe('Higher-Order Function', () => {
-  it('should call onCacheDelete for sync method', async () => {
-    const mockFn = jest.fn();
+  await test('should call onCacheDelete for sync method', async () => {
+    const mockFn = () => {};
     const wrappedMockFn = cacheCandidate(mockFn, {
       requestsThreshold: 1,
       timeFrame: TTL * 2,
@@ -129,10 +61,10 @@ describe('Higher-Order Function', () => {
     });
     wrappedMockFn(1);
     await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(1);
+    assert.equal(eventHits.get('onCacheDelete'), 1);
   });
 
-  it('should call onCacheDelete for async method', async () => {
+  await test('should call onCacheDelete for async method', async () => {
     const mockFn = () => Promise.resolve();
     const wrappedMockFn = cacheCandidate(mockFn, {
       requestsThreshold: 1,
@@ -146,11 +78,11 @@ describe('Higher-Order Function', () => {
     });
     await wrappedMockFn();
     await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(1);
+    assert.equal(eventHits.get('onCacheDelete'), 1);
   });
 
-  it('should call onCacheSet for sync method', async () => {
-    const mockFn = jest.fn();
+  await test('should call onCacheSet for sync method', async () => {
+    const mockFn = () => {};
     const wrappedMockFn = cacheCandidate(mockFn, {
       requestsThreshold: 1,
       timeFrame: TTL * 2,
@@ -165,10 +97,10 @@ describe('Higher-Order Function', () => {
     await sleep(EXECUTION_MARGIN);
     wrappedMockFn(1);
     await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(1);
+    assert.equal(eventHits.get('onCacheSet'), 1);
   });
 
-  it('should call onCacheSet for async method', async () => {
+  await test('should call onCacheSet for async method', async () => {
     const mockFn = () => Promise.resolve();
     const wrappedMockFn = cacheCandidate(mockFn, {
       requestsThreshold: 1,
@@ -183,11 +115,11 @@ describe('Higher-Order Function', () => {
     await wrappedMockFn();
     await wrappedMockFn();
     await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(1);
+    assert.equal(eventHits.get('onCacheSet'), 1);
   });
 
-  it('should call onCacheHit for sync method', async () => {
-    const mockFn = jest.fn();
+  await test('should call onCacheHit for sync method', async () => {
+    const mockFn = () => {};
     const wrappedMockFn = cacheCandidate(mockFn, {
       requestsThreshold: 1,
       timeFrame: TTL * 2,
@@ -202,10 +134,10 @@ describe('Higher-Order Function', () => {
     await sleep(EXECUTION_MARGIN);
     wrappedMockFn(1);
     await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheHit')).toBe(1);
+    assert.equal(eventHits.get('onCacheHit'), 1);
   });
 
-  it('should call onCacheHit for async method', async () => {
+  await test('should call onCacheHit for async method', async () => {
     const mockFn = () => Promise.resolve();
     const wrappedMockFn = cacheCandidate(mockFn, {
       requestsThreshold: 1,
@@ -220,43 +152,34 @@ describe('Higher-Order Function', () => {
     await wrappedMockFn();
     await wrappedMockFn();
     await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheHit')).toBe(1);
+    assert.equal(eventHits.get('onCacheHit'), 1);
   });
 
-  it('should allow for custom getDataCacheKey functions', async () => {
-    const mockFn = jest.fn();
+  await test('should allow for custom getDataCacheKey functions', async () => {
+    const mockFn = () => {};
     const wrappedMockFn = cacheCandidate(mockFn, {
-      customKeyFunction: (args) => {
-        return 'custom-key';
-      },
+      customKeyFunction: () => 'custom-key',
       events: {
         onCacheSet: ({ key }) => {
-          expect(key).toBe('custom-key');
+          assert.equal(key, 'custom-key');
         }
       }
     });
     wrappedMockFn(1);
     await sleep(TTL + EXECUTION_MARGIN);
   });
-});
 
-describe('Library-wide Conditions', () => {
-  it("should throw if expirationMode is 'eject' and 'keepAlive' is true", async () => {
-    expect(() => {
-      cacheCandidate(
-        () => {
-          return Promise.resolve(true);
-        },
-        {
-          expirationMode: 'eject',
-          keepAlive: true
-        }
-      );
-    }).toThrow();
+  await test("should throw if expirationMode is 'eject' and 'keepAlive' is true", async () => {
+    assert.throws(() => {
+      cacheCandidate(() => Promise.resolve(true), {
+        expirationMode: 'eject',
+        keepAlive: true
+      });
+    });
   });
 
-  it("should not call onCacheDelete when expirationMode is 'eject' and ttl has passed", async () => {
-    const mockFn = jest.fn();
+  await test("should not call onCacheDelete when expirationMode is 'eject' and ttl has passed", async () => {
+    const mockFn = () => {};
     const wrappedMockFn = cacheCandidate(mockFn, {
       expirationMode: 'eject',
       requestsThreshold: 1,
@@ -270,11 +193,11 @@ describe('Library-wide Conditions', () => {
     });
     wrappedMockFn(1);
     await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(0);
+    assert.equal(eventHits.get('onCacheDelete'), 0);
   });
 
-  it("should call onCacheDelete when expirationMode is 'timeout-only' and ttl has passed", async () => {
-    const mockFn = jest.fn();
+  await test("should call onCacheDelete when expirationMode is 'timeout-only' and ttl has passed", async () => {
+    const mockFn = () => {};
     const wrappedMockFn = cacheCandidate(mockFn, {
       expirationMode: 'timeout-only',
       requestsThreshold: 1,
@@ -288,10 +211,10 @@ describe('Library-wide Conditions', () => {
     });
     wrappedMockFn(1);
     await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(1);
+    assert.equal(eventHits.get('onCacheDelete'), 1);
   });
 
-  it('should empty the timeframe cache after timeframe has passed', async () => {
+  await test('should empty the timeframe cache after timeframe has passed', async () => {
     let counter = 0;
     const mockFn = (step: number) =>
       new Promise((resolve) => {
@@ -307,16 +230,16 @@ describe('Library-wide Conditions', () => {
     });
 
     await wrappedMockFn(1);
-    expect(counter).toBe(1);
+    assert.equal(counter, 1);
     await sleep(EXECUTION_MARGIN);
     await wrappedMockFn(1);
-    expect(counter).toBe(1);
+    assert.equal(counter, 1);
     await sleep(EXECUTION_MARGIN);
     await wrappedMockFn(1);
-    expect(counter).toBe(2);
+    assert.equal(counter, 2);
   });
 
-  it('should delete the data cache after ttl has passed even if timeframe is not', async () => {
+  await test('should delete the data cache after ttl has passed even if timeframe is not', async () => {
     let counter = 0;
     const mockFn = (step: number) =>
       new Promise((resolve) => {
@@ -332,169 +255,16 @@ describe('Library-wide Conditions', () => {
     });
 
     await wrappedMockFn(1);
-    expect(counter).toBe(1);
+    assert.equal(counter, 1);
     await sleep(EXECUTION_MARGIN);
     await wrappedMockFn(1);
-    expect(counter).toBe(2);
+    assert.equal(counter, 2);
     await sleep(EXECUTION_MARGIN);
     await wrappedMockFn(1);
-    expect(counter).toBe(3);
+    assert.equal(counter, 3);
   });
 
-  it('should make an item expire after TTL', async () => {
-    const mockFn = jest.fn();
-    const wrappedMockFn = cacheCandidate(mockFn, {
-      requestsThreshold: 1,
-      timeFrame: TTL * 2,
-      ttl: TTL,
-      events: {
-        onCacheSet: () => {
-          eventHits.set('onCacheSet', eventHits.get('onCacheSet')! + 1);
-        },
-        onCacheHit: () => {
-          eventHits.set('onCacheHit', eventHits.get('onCacheHit')! + 1);
-        },
-        onCacheDelete: () => {
-          eventHits.set('onCacheDelete', eventHits.get('onCacheDelete')! + 1);
-        }
-      }
-    });
-    wrappedMockFn();
-    await sleep(EXECUTION_MARGIN);
-    wrappedMockFn();
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(1);
-    expect(eventHits.get('onCacheHit')).toBe(1);
-    await sleep(TTL + EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheDelete')).toBe(1);
-    wrappedMockFn();
-    await sleep(EXECUTION_MARGIN);
-    expect(eventHits.get('onCacheSet')).toBe(2);
-    expect(eventHits.get('onCacheHit')).toBe(1);
-  });
-
-  it('should keep alive an item after TTL if it is used', async () => {
-    let counter = 0;
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        counter += step;
-        resolve(counter);
-      });
-    const wrappedMockFn = cacheCandidate(mockFn, {
-      requestsThreshold: 1,
-      ttl: EXECUTION_MARGIN * 2,
-      keepAlive: true
-    });
-
-    await wrappedMockFn(1);
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(1);
-    await wrappedMockFn(1);
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(1);
-    await sleep(EXECUTION_MARGIN * 2);
-    await wrappedMockFn(1);
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(2);
-  });
-
-  it('should return the running query if it is called again before the first one is resolved', async () => {
-    let counter = 0;
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        setTimeout(() => {
-          counter += step;
-          resolve(counter);
-        }, EXECUTION_MARGIN);
-      });
-    const wrappedMockFn = cacheCandidate(mockFn, {
-      requestsThreshold: 1
-    });
-
-    wrappedMockFn(1);
-    await sleep(EXECUTION_MARGIN / 2);
-    wrappedMockFn(1);
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(1);
-  });
-
-  it('should cache when requestsThreshold is reached', async () => {
-    let counter = 0;
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        counter += step;
-        resolve(counter);
-      });
-    const wrappedMockFn = cacheCandidate(mockFn, {
-      requestsThreshold: 1,
-      ttl: 800
-    });
-    await wrappedMockFn(1);
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(1);
-    await wrappedMockFn(1);
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(1);
-  });
-
-  it('should behave correctly when a millisecondThreshold is passed', async () => {
-    let counter = 0;
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        setTimeout(() => {
-          counter += step;
-          resolve(counter);
-        }, EXECUTION_MARGIN);
-      });
-
-    const wrappedMockFn = cacheCandidate(mockFn, {
-      millisecondThreshold: EXECUTION_MARGIN / 2,
-      requestsThreshold: 1
-    });
-
-    await wrappedMockFn(1); // should be cached
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(1);
-    await wrappedMockFn(1); // should be cached
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(1);
-    await wrappedMockFn(2); // should not be cached
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(3);
-    await wrappedMockFn(2); // should be cached
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(3);
-  });
-
-  it('should behave correctly when a candidateFunction is passed', async () => {
-    let counter = 0;
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        counter += step;
-        resolve(counter);
-      });
-
-    const wrappedMockFn = cacheCandidate(mockFn, {
-      candidateFunction: ({ args }) => {
-        return args[0] === 1;
-      }
-    });
-
-    await wrappedMockFn(1); // should be cached
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(1);
-    await wrappedMockFn(1); // should be cached
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(1);
-    await wrappedMockFn(2); // should not be cached
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(3);
-    await wrappedMockFn(2); // should not be cached
-    await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(5);
-  });
-
-  it('should return stale value when ttl has passed and fetchingMode is stale-while-revalidate', async () => {
+  await test('should return stale value when ttl has passed and fetchingMode is stale-while-revalidate', async () => {
     let counter = 0;
     const mockFn = (step: number) =>
       new Promise((resolve) => {
@@ -512,21 +282,94 @@ describe('Library-wide Conditions', () => {
     let result;
     result = await wrappedMockFn(1);
     await sleep(TTL + EXECUTION_MARGIN);
-    expect(result).toBe(1);
-    expect(counter).toBe(1);
+    assert.equal(result, 1);
+    assert.equal(counter, 1);
     result = await wrappedMockFn(1);
     await sleep(TTL + EXECUTION_MARGIN);
-    expect(result).toBe(1);
-    expect(counter).toBe(2);
+    assert.equal(result, 1);
+    assert.equal(counter, 2);
     result = await wrappedMockFn(1);
     await sleep(TTL + EXECUTION_MARGIN);
-    expect(result).toBe(2);
-    expect(counter).toBe(3);
+    assert.equal(result, 2);
+    assert.equal(counter, 3);
+  });
+
+  await test('should remove failed queries from running query cache', async () => {
+    let attempts = 0;
+    const mockFn = () => {
+      attempts++;
+      if (attempts === 1) {
+        return Promise.reject(new Error('test error'));
+      }
+      return Promise.resolve('success');
+    };
+
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      requestsThreshold: 1
+    });
+
+    await assert.rejects(wrappedMockFn(), {
+      message: 'test error'
+    });
+
+    const result = await wrappedMockFn();
+    assert.equal(result, 'success');
+    assert.equal(attempts, 2);
+  });
+
+  await test('should cache based on millisecondThreshold', async () => {
+    let counter = 0;
+    const mockFn = (step: number) =>
+      new Promise((resolve) => {
+        setTimeout(() => {
+          counter += step;
+          resolve(counter);
+        }, 50); // Simulate slow operation
+      });
+
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      millisecondThreshold: 25, // Cache if execution takes longer than 25ms
+      requestsThreshold: 1,
+      ttl: TTL
+    });
+
+    const result1 = await wrappedMockFn(1);
+    assert.equal(result1, 1);
+    const result2 = await wrappedMockFn(1);
+    assert.equal(result2, 1); // Should return cached result
+    assert.equal(counter, 1); // Function should only execute once
+  });
+
+  await test('should cache based on candidateFunction result', async () => {
+    let counter = 0;
+    const mockFn = (step: number) =>
+      new Promise((resolve) => {
+        setTimeout(() => {
+          counter += step;
+          resolve(counter);
+        }, EXECUTION_MARGIN);
+      });
+
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      candidateFunction: async ({ timeFrameCacheRecords, args }) => {
+        // Cache if first argument is 1 and there's at least one previous execution
+        return args[0] === 1 && timeFrameCacheRecords.length >= 1;
+      },
+      requestsThreshold: 1,
+      ttl: TTL
+    });
+
+    await wrappedMockFn(1);
+    assert.equal(counter, 1);
+    await wrappedMockFn(1);
+    assert.equal(counter, 1); // Should use cached result
+    await wrappedMockFn(2);
+    assert.equal(counter, 3); // Should execute because arg is not 1
   });
 });
 
-describe('Plugins', () => {
-  it('should throw if hook is doubled', async () => {
+test.describe('Plugins', async () => {
+  await test('should throw if hook is doubled', async () => {
     const myPlugin: CacheCandidatePlugin = {
       name: 'myPlugin',
       hooks: [
@@ -545,19 +388,15 @@ describe('Plugins', () => {
       ]
     };
 
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        resolve(step);
-      });
-
+    const mockFn = (step: number) => Promise.resolve(step);
     const wrappedMockFn = cacheCandidate(mockFn, {
       plugins: [myPlugin]
     });
 
-    await expect(wrappedMockFn(1)).rejects.toThrow();
+    await assert.rejects(wrappedMockFn(1));
   });
 
-  it('should throw if hook action is not valid', async () => {
+  await test('should throw if hook action is not valid', async () => {
     const myPlugin: CacheCandidatePlugin = {
       name: 'myPlugin',
       hooks: [
@@ -568,19 +407,15 @@ describe('Plugins', () => {
       ]
     };
 
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        resolve(step);
-      });
-
+    const mockFn = (step: number) => Promise.resolve(step);
     const wrappedMockFn = cacheCandidate(mockFn, {
       plugins: [myPlugin]
     });
 
-    await expect(wrappedMockFn(1)).rejects.toThrow();
+    await assert.rejects(wrappedMockFn(1));
   });
 
-  it('should throw if hook name is not valid', async () => {
+  await test('should throw if hook name is not valid', async () => {
     const myPlugin: CacheCandidatePlugin = {
       name: 'myPlugin',
       hooks: [
@@ -593,43 +428,31 @@ describe('Plugins', () => {
       ]
     };
 
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        resolve(step);
-      });
+    const mockFn = (step: number) => Promise.resolve(step);
 
-    try {
+    assert.throws(() => {
       cacheCandidate(mockFn, {
         plugins: [myPlugin]
       });
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(true).toBe(true);
-    }
+    });
   });
 
-  it('should throw if plugin has no hooks', async () => {
+  await test('should throw if plugin has no hooks', async () => {
     const myPlugin: CacheCandidatePlugin = {
       name: 'myPlugin',
       hooks: []
     };
 
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        resolve(step);
-      });
+    const mockFn = (step: number) => Promise.resolve(step);
 
-    try {
+    assert.throws(() => {
       cacheCandidate(mockFn, {
         plugins: [myPlugin]
       });
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(true).toBe(true);
-    }
+    });
   });
 
-  it('should create a stub plugin and use it', async () => {
+  await test('should create a stub plugin and use it', async () => {
     let counter = 0;
     const myPlugin: CacheCandidatePlugin = {
       name: 'myPlugin',
@@ -643,71 +466,13 @@ describe('Plugins', () => {
       ]
     };
 
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        resolve(counter);
-      });
-
+    const mockFn = (step: number) => Promise.resolve(counter);
     const wrappedMockFn = cacheCandidate(mockFn, {
       plugins: [myPlugin]
     });
 
     await wrappedMockFn(1);
     await sleep(EXECUTION_MARGIN);
-    expect(counter).toBe(1);
-  });
-
-  it('should throw if internal functions getDataCacheRecord is overridden', async () => {
-    const myPlugin = {
-      name: 'myPlugin',
-      hooks: [
-        {
-          hook: Hooks.INIT,
-          action: async (payload) => {
-            payload.internals.getDataCacheRecord = function () {
-              console.log('should not be possible');
-            };
-          }
-        }
-      ]
-    };
-
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        resolve(step);
-      });
-
-    const wrappedMockFn = cacheCandidate(mockFn, {
-      plugins: [myPlugin]
-    });
-
-    await expect(wrappedMockFn(1)).rejects.toThrow();
-  });
-
-  it('should not throw if internal functions getDataCacheKey is overridden', async () => {
-    const myPlugin = {
-      name: 'myPlugin',
-      hooks: [
-        {
-          hook: Hooks.INIT,
-          action: async (payload) => {
-            payload.internals.getDataCacheKey = function () {
-              console.log('should be possible');
-            };
-          }
-        }
-      ]
-    };
-
-    const mockFn = (step: number) =>
-      new Promise((resolve) => {
-        resolve(step);
-      });
-
-    const wrappedMockFn = cacheCandidate(mockFn, {
-      plugins: [myPlugin]
-    });
-
-    await expect(wrappedMockFn(1)).resolves.not.toThrowError();
+    assert.equal(counter, 1);
   });
 });

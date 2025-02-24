@@ -55,8 +55,7 @@ function getRunningQueryRecord({
   return RunningQueryRecordNotFound;
 }
 
-export function getDataCacheKey(...args: any[]) {
-  // Return an obfuscated key
+export function getDataCacheKey(args: any[]) {
   return createHash('sha256').update(args.join('|')).digest('hex');
 }
 
@@ -320,12 +319,11 @@ export function uniqid(length = 10) {
 export function checkExpirationMode(options: CacheCandidateOptions) {
   if (options.expirationMode === 'eject' && options.keepAlive === true) {
     throw new Error(
-      'The cache-candidate currently doesn\'t support the "eject" expiration mode with the "keepAlive" option.'
+      'The cache-candidate can\'t support the "eject" expiration mode with the "keepAlive" option.'
     );
   }
 }
 
-// returns a partially frozen object
 function internalsFactory() {
   const internals = {
     getDataCacheKey,
@@ -335,22 +333,6 @@ function internalsFactory() {
     isDataCacheRecordExpired,
     getExceedingAmount
   };
-  Object.defineProperty(internals, 'getDataCacheRecord', {
-    value: getDataCacheRecord,
-    writable: false
-  });
-  Object.defineProperty(internals, 'addDataCacheRecord', {
-    value: addDataCacheRecord,
-    writable: false
-  });
-  Object.defineProperty(internals, 'deleteDataCacheRecord', {
-    value: deleteDataCacheRecord,
-    writable: false
-  });
-  Object.defineProperty(internals, 'isDataCacheRecordExpired', {
-    value: isDataCacheRecordExpired,
-    writable: false
-  });
 
   return internals;
 }
