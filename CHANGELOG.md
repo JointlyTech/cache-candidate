@@ -1,3 +1,9 @@
+#### 2.1.3 (2025-02-24)
+
+##### New Features
+
+*  v3.0 ([#54](https://github.com/JointlyTech/cache-candidate/pull/54)) ([0f042b8d](https://github.com/JointlyTech/cache-candidate/commit/0f042b8de2ebac417c2796cf01545abe3044b14c))
+
 #### 2.1.2 (2024-12-09)
 
 ##### Bug Fixes
