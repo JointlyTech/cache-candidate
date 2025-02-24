@@ -1,3 +1,26 @@
+## 3.0.0 (2025-02-24)
+
+##### Chores
+
+*  docs and exception ([b80bc6be](https://github.com/JointlyTech/cache-candidate/commit/b80bc6befac4a475a18709af417941bd5d44e8ba))
+*  removing useless file ([045a3812](https://github.com/JointlyTech/cache-candidate/commit/045a3812e16fedb12edd98e55b8f3892b453ccfb))
+
+##### Continuous Integration
+
+*  updating actions ([ae45cae5](https://github.com/JointlyTech/cache-candidate/commit/ae45cae5b15248592dff2b1c07cdfbf69ae69c77))
+*  updating actions ([ae250e00](https://github.com/JointlyTech/cache-candidate/commit/ae250e002dd4cb346983aec4238d0e4e918886de))
+
+##### New Features
+
+*  migrating eslint and adapting types ([0fed4ff8](https://github.com/JointlyTech/cache-candidate/commit/0fed4ff8e4d29de7d0f99f978b0785de4792aef4))
+*  moving to node 22 ([42987f09](https://github.com/JointlyTech/cache-candidate/commit/42987f098c8fd5cc452f80449d248be098d5c203))
+*  more freedom on internals ([8b4cd5e9](https://github.com/JointlyTech/cache-candidate/commit/8b4cd5e958c76ce81bfba4ab5060d4a186af2d1c))
+
+##### Refactors
+
+*  moving to node test runner ([6fbfb8c4](https://github.com/JointlyTech/cache-candidate/commit/6fbfb8c48d0e084c519116b5c3c68ab7ff6d4938))
+*  removing all decorator-based implementation ([c394063e](https://github.com/JointlyTech/cache-candidate/commit/c394063ebeb63161cc0e725a52f2e50265b0e423))
+
 #### 2.1.2 (2024-12-09)
 
 ##### Bug Fixes
