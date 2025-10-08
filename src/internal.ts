@@ -135,20 +135,24 @@ export async function deleteDataCacheRecord({
   key,
   HookPayload,
   result,
-  staleMap
+  staleMap,
+  forceDeleteFn
 }: {
   options: CacheCandidateOptions;
   key: string;
   HookPayload: PluginPayload;
   result: unknown;
   staleMap: StaleMap;
+  forceDeleteFn?: boolean;
 }) {
   if (options.fetchingMode === 'stale-while-revalidate') {
     staleMap.set(key, result);
   }
-  const fnToCall = expirationOption(options.expirationMode, 'call-delete')
-    ? options.cache.delete
-    : () => Promise.resolve();
+  const fnToCall =
+    (forceDeleteFn ?? false) ||
+    expirationOption(options.expirationMode, 'call-delete')
+      ? options.cache.delete
+      : () => Promise.resolve();
   (
     pluginHookWrap(
       Hooks.DATACACHE_RECORD_DELETE_PRE,
