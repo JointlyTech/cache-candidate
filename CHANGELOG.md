@@ -1,3 +1,18 @@
+### 3.1.0 (2025-10-08)
+
+##### Chores
+
+*  setting the correct package version ([e660c231](https://github.com/JointlyTech/cache-candidate/commit/e660c2314bbe0bd31ea10a90463887b62c5304ad))
+
+##### Documentation Changes
+
+*  updated changelog ([5afe2891](https://github.com/JointlyTech/cache-candidate/commit/5afe2891da82bcbf0acead86be0f1c655589edb2))
+*  updated changelog ([ccd51034](https://github.com/JointlyTech/cache-candidate/commit/ccd5103462ef358981bdfa3fabe1d6a377cb6859))
+
+##### New Features
+
+*  adding forceDeleteFn to deleteDataCacheRecord ([66977904](https://github.com/JointlyTech/cache-candidate/commit/66977904322002168ff85d108418aecae9ea3454))
+
 ### 2.2.0 (2025-10-08)
 
 ##### Documentation Changes
