@@ -1,3 +1,13 @@
+### 2.2.0 (2025-10-08)
+
+##### Documentation Changes
+
+*  updated changelog ([ccd51034](https://github.com/JointlyTech/cache-candidate/commit/ccd5103462ef358981bdfa3fabe1d6a377cb6859))
+
+##### New Features
+
+*  adding forceDeleteFn to deleteDataCacheRecord ([66977904](https://github.com/JointlyTech/cache-candidate/commit/66977904322002168ff85d108418aecae9ea3454))
+
 ## 4.0.0 (2025-02-24)
 
 #### 2.1.3 (2025-02-24)
