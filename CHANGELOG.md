@@ -1,3 +1,9 @@
+#### 3.1.1 (2026-10-07)
+
+##### Chores
+
+* **MUF-10757:**  update dependencies (minor/patch) ([#55](https://github.com/JointlyTech/cache-candidate/pull/55)) ([039920ee](https://github.com/JointlyTech/cache-candidate/commit/039920eeb98c4fdb0aaa7b158e742206bc670314))
+
 ### 3.1.0 (2025-10-08)
 
 ##### Chores
