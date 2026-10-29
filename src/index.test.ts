@@ -366,6 +366,28 @@ test.describe('Higher-Order Function', async () => {
     await wrappedMockFn(2);
     assert.equal(counter, 3); // Should execute because arg is not 1
   });
+
+  await test('should treat a record vanished between has and get as a cache miss', async () => {
+    let counter = 0;
+    const mockFn = async (x: number) => {
+      counter++;
+      return x * 2;
+    };
+    const wrappedMockFn = cacheCandidate(mockFn, {
+      ...options,
+      cache: {
+        get: async () => undefined,
+        has: async () => true,
+        set: async () => true,
+        delete: async () => true
+      }
+    });
+
+    const result = await wrappedMockFn(21);
+    assert.equal(result, 42);
+    assert.equal(counter, 1);
+    assert.equal(eventHits.get('onCacheHit'), 0);
+  });
 });
 
 test.describe('Plugins', async () => {
