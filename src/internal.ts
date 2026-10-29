@@ -75,24 +75,25 @@ export async function getDataCacheRecord({
   HookPayload,
   staleMap
 }): Promise<unknown | undefined> {
-  if (await options.cache.has(key)) {
-    const { result, birthTime } = await options.cache.get(key);
-    // Remove the dataCache record if the time frame has passed.
-    if (isDataCacheRecordExpired({ birthTime, options })) {
-      await deleteDataCacheRecord({
-        options,
-        key,
-        HookPayload,
-        result,
-        staleMap
-      });
-      return DataCacheRecordNotFound;
-    } else {
-      // Return the cached data
-      return result;
-    }
+  const record = await options.cache.get(key);
+  if (!record) {
+    return DataCacheRecordNotFound;
   }
-  return DataCacheRecordNotFound;
+  const { result, birthTime } = record;
+  // Remove the dataCache record if the time frame has passed.
+  if (isDataCacheRecordExpired({ birthTime, options })) {
+    await deleteDataCacheRecord({
+      options,
+      key,
+      HookPayload,
+      result,
+      staleMap
+    });
+    return DataCacheRecordNotFound;
+  } else {
+    // Return the cached data
+    return result;
+  }
 }
 
 export async function addDataCacheRecord({
