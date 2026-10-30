@@ -1,0 +1,146 @@
+name: Auto release
+
+on:
+  schedule:
+    - cron: '0 6 15 * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Print bump, version, commits and dependency-major approvals without releasing'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: auto-release
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  auto_release:
+    name: Auto release
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.ORG_GITHUB_TOKEN }}
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+    steps:
+      # The org token, not GITHUB_TOKEN: a tag pushed with GITHUB_TOKEN would not start ci.yml and release.yml.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{ secrets.ORG_GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Resolve default branch
+        id: repo
+        run: |
+          default_branch=$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch)
+          echo "default_branch=$default_branch" >> "$GITHUB_OUTPUT"
+          if [ "$DRY_RUN" != 'true' ] && [ "$GITHUB_REF_NAME" != "$default_branch" ]; then
+            echo "::error::A real release runs only on $default_branch, not on $GITHUB_REF_NAME"
+            exit 1
+          fi
+
+      - name: Analyze commits since last tag
+        id: analyze
+        run: |
+          node .github/scripts/release-bump.mjs > "$RUNNER_TEMP/release.json"
+          last_tag=$(jq -r .lastTag "$RUNNER_TEMP/release.json")
+          bump=$(jq -r .bump "$RUNNER_TEMP/release.json")
+          version=$(jq -r '.nextVersion // empty' "$RUNNER_TEMP/release.json")
+          {
+            echo "bump=$bump"
+            echo "version=$version"
+          } >> "$GITHUB_OUTPUT"
+
+          if [ "$bump" = none ]; then
+            echo "No new commits since $last_tag: nothing to release"
+            exit 0
+          fi
+          if [ "$(jq -r .packageVersionMatches "$RUNNER_TEMP/release.json")" != true ]; then
+            echo "::error::package.json version does not match $last_tag: refusing to release"
+            exit 1
+          fi
+
+          echo "Last tag: $last_tag"
+          echo "Bump: $bump"
+          echo "Next version: $version"
+          echo "Commits:"
+          jq -r '.commits[] | "  \(.sha[0:7]) \(.subject)"' "$RUNNER_TEMP/release.json"
+
+          if [ "$bump" = major ]; then
+            echo "Breaking commits:"
+            jq -r '.breaking[] | "  \(.sha[0:7]) \(.subject)"' "$RUNNER_TEMP/release.json"
+            if [ "$DRY_RUN" = 'true' ]; then
+              echo "Dry run: would fail, a major release is not automatic: use the manual release:major"
+              exit 0
+            fi
+            echo "::error::Rilascio major: usare il release:major manuale"
+            exit 1
+          fi
+          echo "proceed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Check dependency-major approvals
+        id: gate
+        if: steps.analyze.outputs.proceed == 'true'
+        env:
+          VERSION: ${{ steps.analyze.outputs.version }}
+        run: |
+          jq -r '.commits[].sha' "$RUNNER_TEMP/release.json" > "$RUNNER_TEMP/shas.txt"
+          node .github/scripts/release-gate.mjs --shas-file "$RUNNER_TEMP/shas.txt" > "$RUNNER_TEMP/gate.json"
+
+          echo "Pull requests with dependency majors, approved:"
+          jq -r '.approved[] | "  #\(.number) \(.title) (approved by \(.approver))"' "$RUNNER_TEMP/gate.json"
+          echo "Pull requests with dependency majors, not approved:"
+          jq -r '.unapproved[] | "  #\(.number) \(.title)"' "$RUNNER_TEMP/gate.json"
+
+          if [ "$(jq -r '.unapproved | length' "$RUNNER_TEMP/gate.json")" = 0 ]; then
+            [ "$DRY_RUN" = 'true' ] && echo "Dry run: would release v$VERSION"
+            exit 0
+          fi
+          if [ "$DRY_RUN" = 'true' ]; then
+            echo "Dry run: would fail until every PR above has a CHANGELOG-CHECKED comment"
+            exit 0
+          fi
+          echo "::error::Release blocked: PR con major senza CHANGELOG-CHECKED. Commentare sulle PR e rilanciare il workflow"
+          exit 1
+
+      - name: Release
+        if: steps.gate.outputs.gate_passed == 'true' && env.DRY_RUN != 'true'
+        env:
+          BUMP: ${{ steps.analyze.outputs.bump }}
+          VERSION: ${{ steps.analyze.outputs.version }}
+          DEFAULT_BRANCH: ${{ steps.repo.outputs.default_branch }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          created=$(npm version "$BUMP")
+          if [ "$created" != "v$VERSION" ]; then
+            echo "::error::npm version created $created, expected v$VERSION"
+            exit 1
+          fi
+          git push --atomic origin "HEAD:refs/heads/$DEFAULT_BRANCH" "refs/tags/v$VERSION"
+
+      - name: Notify Slack
+        if: always() && env.DRY_RUN != 'true' && (steps.analyze.outputs.bump == 'major' || steps.gate.outputs.gate_passed == 'false')
+        continue-on-error: true
+        env:
+          SLACK_RELEASE_HOOK_URL: ${{ secrets.SLACK_RELEASE_HOOK_URL }}
+          BUMP: ${{ steps.analyze.outputs.bump }}
+          UNAPPROVED_PRS: ${{ steps.gate.outputs.unapproved_prs }}
+        run: |
+          if [ "$BUMP" = major ]; then
+            detail="rilascio major, non automatico: usare il release:major manuale"
+          else
+            detail="PR con major senza CHANGELOG-CHECKED: $UNAPPROVED_PRS. Commentare sulle PR e rilanciare il workflow"
+          fi
+          node .github/scripts/notify-slack.mjs "Rilascio automatico di $GITHUB_REPOSITORY bloccato: $detail. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
