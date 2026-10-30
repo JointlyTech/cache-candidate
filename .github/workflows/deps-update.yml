@@ -1,0 +1,196 @@
+name: Dependencies update
+
+on:
+  schedule:
+    - cron: '0 6 7 * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Print what would be done, without commit, push, PR, label or Slack'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deps_update:
+    name: Massive update and PR
+    runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ inputs.dry_run == true }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@jointlytech'
+
+      - name: Update dependencies
+        id: update
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.ORG_GITHUB_TOKEN }}
+          npm_config_ignore_scripts: 'true'
+        run: |
+          cp package.json "$RUNNER_TEMP/package.before.json"
+          if [ "$(node -p "Boolean(require('./package.json').scripts?.['massive-update'])")" = "true" ]; then
+            npm run massive-update
+          else
+            npx npm-check-updates -u --target minor && rm -rf node_modules && npm install --save-dev
+          fi
+
+      - name: Detect changes
+        id: changes
+        run: |
+          if [ -z "$(git status --porcelain -- package.json package-lock.json)" ]; then
+            echo "No dependency changes: nothing to do"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and test
+        id: checks
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          set +e
+          failed=false
+          build_status=passed
+          test_status=skipped
+
+          npm run build --if-present || { build_status=failed; failed=true; }
+
+          test_script="$(node -p "require('./package.json').scripts?.test ?? ''")"
+          # npm's default placeholder always exits 1: it is not a test suite
+          if [ -n "$test_script" ] && ! grep -q 'no test specified' <<< "$test_script"; then
+            if npm test; then test_status=passed; else test_status=failed; failed=true; fi
+          fi
+
+          {
+            echo "failed=$failed"
+            echo "build_status=$build_status"
+            echo "test_status=$test_status"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open pull request
+        id: publish
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.ORG_GITHUB_TOKEN }}
+          BUILD_STATUS: ${{ steps.checks.outputs.build_status }}
+          TEST_STATUS: ${{ steps.checks.outputs.test_status }}
+          CHECKS_FAILED: ${{ steps.checks.outputs.failed }}
+        run: |
+          branch="chore/massive-update-$(date -u +%Y%m)"
+          title="chore(deps): massive update $(date -u +%Y-%m)"
+
+          majors_json="$(node .github/scripts/dependency-majors.mjs "$RUNNER_TEMP/package.before.json" package.json)"
+          has_majors="$(jq -r .hasMajors <<< "$majors_json")"
+          majors_table="$(jq -r .markdown <<< "$majors_json")"
+          changed_lines="$(git diff -U0 -- package.json | grep -E '^[+-] +"' || true)"
+
+          {
+            echo "Monthly dependency update."
+            echo
+            echo '```diff'
+            echo "$changed_lines"
+            echo '```'
+            echo
+            echo "- Build: $BUILD_STATUS"
+            echo "- Test: $TEST_STATUS"
+            if [ "$CHECKS_FAILED" = "true" ]; then
+              echo
+              echo "**Build or test failed after the update: do not merge before fixing it.**"
+            fi
+          } > "$RUNNER_TEMP/pr-body.md"
+
+          {
+            echo "<!-- deps-update-majors -->"
+            echo "This update contains dependency major versions:"
+            echo
+            echo "$majors_table"
+            echo
+            echo "Read the changelog of each one, then reply with a comment whose first line is exactly \`CHANGELOG-CHECKED\`."
+          } > "$RUNNER_TEMP/majors-comment.md"
+
+          if [ "$(gh pr list --head "$branch" --state open --json number --jq length)" != "0" ]; then
+            echo "A pull request from $branch is already open: nothing to do"
+            exit 0
+          fi
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "DRY RUN: nothing is committed, pushed or sent"
+            echo "Branch: $branch"
+            echo "PR title: $title"
+            echo "Build: $BUILD_STATUS, test: $TEST_STATUS"
+            echo "Majors: $has_majors"
+            [ "$has_majors" = "true" ] && { echo "Label: changelog-check"; echo "--- comment ---"; cat "$RUNNER_TEMP/majors-comment.md"; }
+            echo "--- PR body ---"
+            cat "$RUNNER_TEMP/pr-body.md"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add package.json
+          [ -f package-lock.json ] && git add package-lock.json
+          git commit -m "$title"
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
+          echo "::add-mask::$auth"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $auth"
+          git fetch origin "$branch" 2>/dev/null || true
+          git push --force-with-lease origin "$branch"
+
+          pr_url="$(gh pr create --head "$branch" --title "$title" --body-file "$RUNNER_TEMP/pr-body.md")"
+          echo "$pr_url"
+
+          if [ "$has_majors" = "true" ]; then
+            gh label create changelog-check --force --color FBCA04 --description "Dependency major: changelogs to read"
+            gh pr edit "$pr_url" --add-label changelog-check
+            gh pr comment "$pr_url" --body-file "$RUNNER_TEMP/majors-comment.md"
+          fi
+
+          echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
+
+      - name: Notify Slack
+        if: always() && (steps.update.outcome == 'failure' || (steps.checks.outputs.failed == 'true' && (steps.publish.outputs.pr_url != '' || env.DRY_RUN == 'true')))
+        continue-on-error: true
+        env:
+          SLACK_RELEASE_HOOK_URL: ${{ secrets.SLACK_RELEASE_HOOK_URL }}
+          UPDATE_OUTCOME: ${{ steps.update.outcome }}
+          PR_URL: ${{ steps.publish.outputs.pr_url }}
+          BUILD_STATUS: ${{ steps.checks.outputs.build_status }}
+          TEST_STATUS: ${{ steps.checks.outputs.test_status }}
+        run: |
+          if [ "$UPDATE_OUTCOME" = "failure" ]; then
+            detail="aggiornamento o installazione falliti"
+          else
+            detail="build/test falliti (build: $BUILD_STATUS, test: $TEST_STATUS)"
+          fi
+          slack_text="Aggiornamento dipendenze di $GITHUB_REPOSITORY: $detail.${PR_URL:+ PR: $PR_URL} Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "DRY RUN: Slack text that would be sent"
+            echo "$slack_text"
+          else
+            node .github/scripts/notify-slack.mjs "$slack_text"
+          fi
+
+      - name: Fail on build or test failure
+        if: always() && steps.checks.outputs.failed == 'true'
+        run: |
+          echo "::error::Build or test failed after the dependency update"
+          exit 1
