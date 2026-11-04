@@ -134,7 +134,7 @@ jobs:
         if: always() && env.DRY_RUN != 'true' && (steps.analyze.outputs.bump == 'major' || steps.gate.outputs.gate_passed == 'false')
         continue-on-error: true
         env:
-          SLACK_RELEASE_HOOK_URL: ${{ secrets.SLACK_RELEASE_HOOK_URL }}
+          SLACK_PIPELINE_HOOK_URL: ${{ secrets.SLACK_PIPELINE_HOOK_URL }}
           BUMP: ${{ steps.analyze.outputs.bump }}
           UNAPPROVED_PRS: ${{ steps.gate.outputs.unapproved_prs }}
         run: |

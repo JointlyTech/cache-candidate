@@ -28,7 +28,7 @@ export async function notifySlack(webhookUrl, text, { timeoutMs = TIMEOUT_MS } =
 
 async function main() {
   try {
-    await notifySlack(process.env.SLACK_RELEASE_HOOK_URL, process.argv[2] ?? '');
+    await notifySlack(process.env.SLACK_PIPELINE_HOOK_URL, process.argv[2] ?? '');
   } catch (error) {
     console.warn(`Slack notification failed: ${error.message}`);
   }

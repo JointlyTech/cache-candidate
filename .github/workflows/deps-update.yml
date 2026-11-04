@@ -170,7 +170,7 @@ jobs:
         if: always() && (steps.update.outcome == 'failure' || (steps.checks.outputs.failed == 'true' && (steps.publish.outputs.pr_url != '' || env.DRY_RUN == 'true')))
         continue-on-error: true
         env:
-          SLACK_RELEASE_HOOK_URL: ${{ secrets.SLACK_RELEASE_HOOK_URL }}
+          SLACK_PIPELINE_HOOK_URL: ${{ secrets.SLACK_PIPELINE_HOOK_URL }}
           UPDATE_OUTCOME: ${{ steps.update.outcome }}
           PR_URL: ${{ steps.publish.outputs.pr_url }}
           BUILD_STATUS: ${{ steps.checks.outputs.build_status }}
