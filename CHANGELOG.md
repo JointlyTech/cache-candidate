@@ -1,3 +1,9 @@
+#### 3.1.3 (2026-11-11)
+
+##### Bug Fixes
+
+* **MUF-11810:**  treat a record missing on get as a cache miss ([#56](https://github.com/JointlyTech/cache-candidate/pull/56)) ([922b1a71](https://github.com/JointlyTech/cache-candidate/commit/922b1a7185ece36bce20120b8c816630a3880c3f))
+
 #### 3.1.2 (2026-10-08)
 
 #### 3.1.1 (2026-10-07)
